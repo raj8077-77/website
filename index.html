@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#07060c" />
   <meta name="description" content="D3m0n.in — Just a beginning of new era and ideas." />
   <title>D3M0N.IN</title>
@@ -23,7 +23,10 @@
       --muted: #a39bb8;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { touch-action: manipulation; }
+    button, a, input { -webkit-tap-highlight-color: transparent; outline: none; }
+    button:focus, a:focus, input:focus { outline: none; }
 
     body {
       min-height: 100dvh;
@@ -199,19 +202,12 @@
     }
 
     .illegal {
-      border: 1px solid rgba(228, 197, 106, 0.55);
-      cursor: pointer;
       color: var(--gold);
       font-weight: 700;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      padding: 11px 26px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, #1c1430, #0c0a12);
-      box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.35);
+      font-size: 0.95rem;
     }
-
-    .illegal:active { transform: scale(0.97); }
 
     .sep {
       margin: 26px 0 16px;
@@ -373,12 +369,21 @@
       color: #fff;
     }
 
-    .yp:fullscreen, .yp:-webkit-full-screen {
+    .yp:fullscreen, .yp:-webkit-full-screen, .yp.force-land {
       width: 100%;
       height: 100%;
       max-width: none;
       border-radius: 0;
       aspect-ratio: auto;
+    }
+    .yp.force-land {
+      position: fixed;
+      z-index: 80;
+      width: 100vh;
+      height: 100vw;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(90deg);
     }
 
     .yp-stage { position: absolute; inset: 0; overflow: hidden; background: #000; }
@@ -434,11 +439,33 @@
     .yp-rate { width: auto; padding: 0 8px; border-radius: 999px; font: inherit; font-size: 12px; }
 
     .notice {
-      margin: 18px 4px 0;
-      color: var(--muted);
-      font-size: 0.86rem;
-      line-height: 1.55;
+      margin: 12px 22px 0;
+      color: #6f6784;
+      font-size: 0.72rem;
+      line-height: 1.4;
       text-align: center;
+    }
+    .hold {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      place-items: center;
+      background: #07060c;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-align: center;
+      padding: 24px;
+    }
+    @media (orientation: landscape) and (max-height: 520px) and (pointer: coarse) {
+      body:not(.fs-on) header,
+      body:not(.fs-on) main { display: none; }
+      body:not(.fs-on) .hold { display: grid; }
+    }
+    @media (min-width: 980px) and (pointer: fine) {
+      body { display: grid; place-items: start center; }
+      main { width: min(460px, 100%); padding-top: 28px; }
+      .profile { padding: 28px 22px 22px; }
     }
   </style>
 </head>
@@ -492,6 +519,7 @@
     <section class="legal-block">
       <h2 class="headline">Legal</h2>
       <div class="legal-row">
+        <span class="illegal">Illegal</span>
         <button class="sound-toggle" id="soundToggle" type="button" aria-label="Sound off" aria-pressed="false">
           <span class="knob">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
@@ -500,7 +528,6 @@
             </svg>
           </span>
         </button>
-        <button class="illegal" id="illegal" type="button">Illegal</button>
       </div>
       <audio id="baccha" preload="none" src="baccha.mp3"></audio>
     </section>
@@ -542,18 +569,18 @@
         </div>
       </div>
     </div>
-    <p class="notice">इस वेबसाइट पर दी गई सारी जानकारी legal है और सिर्फ educational purpose के लिए है। अगर आप इस जानकारी का इस्तेमाल अपने device पर करते हो, तो यह legal है। अगर आप इसे किसी और के device पर करते हो, तो यह illegal है, और इसकी ज़िम्मेदारी आपकी होगी।</p>
+    <p class="notice" id="notice"></p>
   </main>
 
+  <div class="hold">Phone upright rakho</div>
+  <script src="vault.js"></script>
   <script>
-    const ICON = "https://ik.imagekit.io/silentgamers/Picsart_26-10-03_02-00-17-755.png?updatedAt=1790973036512&ik-s=cb860e00d6fdf3a8e6886e7b6a485ebc47ca2209";
+    const ICON = window.VAULT.icon;
+    document.getElementById("notice").textContent = window.VAULT.disclaimer;
 
-    const products = [
-      { n: 1, title: "Product One", thumb: ICON },
-      { n: 2, title: "Product Two", thumb: ICON },
-      { n: 3, title: "Product Three", thumb: ICON },
-      { n: 4, title: "Product Four", thumb: ICON }
-    ];
+    const products = window.VAULT.items.map(function (item) {
+      return { n: item.n, title: item.name, thumb: item.thumb || ICON };
+    });
 
     let index = 0;
     let moved = false;
@@ -656,10 +683,9 @@
       else playSound();
     });
 
-    illegal.addEventListener("click", playSound);
     audio.addEventListener("ended", () => setOn(false));
 
-    var VIDEO = "3hZrphILcn4";
+    var VIDEO = window.VAULT.homeVideo;
     var player = null, hideT = null, lastTap = 0, armed = false;
     var vol = 100, bright = 100, rates = [1, 1.25, 1.5, 2], rateAt = 0;
     var playI = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
@@ -672,7 +698,18 @@
       n = Math.max(0, Math.floor(n || 0));
       return Math.floor(n / 60) + ":" + String(n % 60).padStart(2, "0");
     }
-    function fsOn() { return document.fullscreenElement === document.getElementById("ypShell"); }
+    function fsOn() { return document.fullscreenElement === document.getElementById("ypShell") || document.getElementById("ypShell").classList.contains("force-land"); }
+    function landOn(el) {
+      document.body.classList.add("fs-on");
+      if (window.innerHeight > window.innerWidth) el.classList.add("force-land");
+      if (screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(function () {});
+    }
+    function landOff(el) {
+      el.classList.remove("force-land");
+      document.body.classList.remove("fs-on");
+      if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+      if (screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(function () {});
+    }
     function forceHD() {
       if (!player || !player.setPlaybackQuality) return;
       try { player.setPlaybackQuality("hd1080"); } catch (e) {}
@@ -807,10 +844,20 @@
     };
     document.getElementById("ypFull").onclick = function () {
       var el = document.getElementById("ypShell");
-      if (fsOn()) document.exitFullscreen();
-      else (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+      if (fsOn()) {
+        landOff(el);
+        if (document.fullscreenElement) document.exitFullscreen();
+      } else {
+        var req = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (req) Promise.resolve(req.call(el)).then(function () { landOn(el); }).catch(function () { landOn(el); });
+        else landOn(el);
+      }
+      paint();
     };
-    document.addEventListener("fullscreenchange", paint);
+    document.addEventListener("fullscreenchange", function () {
+      if (!document.fullscreenElement) landOff(document.getElementById("ypShell"));
+      paint();
+    });
     document.getElementById("ypHit").addEventListener("click", function (e) {
       var now = Date.now();
       var box = this.getBoundingClientRect();
@@ -843,6 +890,9 @@
     document.getElementById("ypHit").addEventListener("touchend", function () { drag = null; });
     document.getElementById("ypBritfill").style.height = "100%";
     document.getElementById("ypVolfill").style.height = "100%";
+    document.addEventListener("gesturestart", function (e) { e.preventDefault(); });
+    document.addEventListener("wheel", function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+    if (screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(function () {});
   </script>
 </body>
 </html>
