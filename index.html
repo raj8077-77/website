@@ -4,47 +4,121 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <title>Fixed custom YouTube player</title>
+  <title>D3.M0.N.IN player</title>
   <style>
-    :root { --accent: #d4a853; }
+    :root {
+      --purple: #7c3aed;
+      --purple-2: #a78bfa;
+      --ink: #0b0b10;
+      --card: #14141c;
+      --line: rgba(255,255,255,.12);
+      --white: #f7f7fb;
+    }
     * { box-sizing: border-box; }
-    body { margin: 0; background: #0e0e12; color: #f6f3ec; font-family: system-ui, sans-serif; }
-    main { max-width: 900px; margin: 0 auto; padding: 24px 16px 40px; }
-    h1 { font-size: 22px; margin: 0 0 8px; }
-    p { color: #9c978e; line-height: 1.45; }
-    form { display: flex; gap: 8px; margin: 12px 0 16px; }
-    input[type="text"] { flex: 1; font: inherit; padding: 10px 12px; border-radius: 8px; border: 1px solid #2c2c34; background: #17171d; color: #fff; }
-    button { font: inherit; background: var(--accent); color: #1b1408; border: 0; border-radius: 8px; padding: 10px 14px; cursor: pointer; }
-    .player { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; }
-    .crop { position: absolute; inset: -60px 0; }
-    .crop iframe { width: 100%; height: 100%; border: 0; }
-    .cover { position: absolute; inset: 0; display: grid; place-items: center; background: #000 center/cover no-repeat; z-index: 2; }
-    .cover.hide { display: none; }
-    .end { background: rgba(0,0,0,.84); text-align: center; padding: 16px; gap: 10px; }
-    #log { font-size: 14px; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(900px 420px at 80% -10%, rgba(124,58,237,.35), transparent 60%),
+        var(--ink);
+      color: var(--white);
+      font-family: system-ui, sans-serif;
+    }
+    main { max-width: 1100px; margin: 0 auto; padding: 28px 16px 48px; }
+    .brand { font-weight: 750; letter-spacing: .04em; font-size: 28px; margin: 0; }
+    .brand .w { color: #fff; }
+    .brand .p { color: var(--purple-2); }
+    .lead { color: #b7b4c7; margin: 8px 0 18px; }
+    form { display: flex; gap: 8px; margin-bottom: 18px; }
+    input {
+      flex: 1; font: inherit; color: #fff; background: #101018;
+      border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+    }
+    button.go {
+      font: inherit; font-weight: 700; border: 0; border-radius: 12px;
+      padding: 12px 16px; cursor: pointer; color: #fff;
+      background: linear-gradient(180deg, #8b5cf6, var(--purple));
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+    .label { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: #b7b4c7; margin: 0 0 8px; }
+    .stage { position: relative; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; }
+    .stage iframe { width: 100%; height: 100%; border: 0; }
+    .crop { position: absolute; inset: -64px 0; pointer-events: none; }
+    .crop iframe { width: 100%; height: 100%; border: 0; pointer-events: none; }
+    .shield { position: absolute; inset: 0; z-index: 2; }
+    .cover {
+      position: absolute; inset: 0; z-index: 3; display: none;
+      place-items: center; background: #000 center/cover no-repeat;
+    }
+    .cover.on { display: grid; }
+    .play {
+      width: 74px; height: 74px; border-radius: 50%; border: 0; cursor: pointer;
+      color: #fff; font-size: 26px;
+      background: linear-gradient(180deg, #8b5cf6, var(--purple));
+      box-shadow: 0 10px 30px rgba(124,58,237,.45);
+    }
+    .empty { color: #b7b4c7; text-align: center; padding: 24px; }
+    .flash {
+      position: absolute; top: 42%; z-index: 5; color: #fff; font-weight: 700;
+      background: rgba(124,58,237,.82); border-radius: 999px; padding: 8px 12px;
+      opacity: 0; pointer-events: none;
+    }
+    .flash.l { left: 18px; } .flash.r { right: 18px; }
+    .flash.show { animation: pop .6s ease; }
+    @keyframes pop { 0% { opacity: 0; transform: scale(.9); } 20% { opacity: 1; } 100% { opacity: 0; } }
+    .bar {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 4;
+      display: flex; gap: 8px; align-items: center; padding: 10px;
+      background: linear-gradient(transparent, rgba(8,8,14,.9));
+    }
+    .bar button { color: #fff; background: transparent; border: 0; cursor: pointer; font: inherit; }
+    .bar input { flex: 1; accent-color: var(--purple); }
+    .mark { font-size: 12px; letter-spacing: .04em; }
+    .mark b { color: var(--purple-2); font-weight: 750; }
+    .end { background: rgba(8,8,14,.88); text-align: center; gap: 10px; padding: 16px; }
+    .hint { color: #b7b4c7; font-size: 13px; margin-top: 10px; }
   </style>
 </head>
 <body>
   <main>
-    <h1>Custom player, Error 153 fixed</h1>
-    <p>Paste a YouTube link, press Load, then Play. This page must be opened over http or https, not as a file.</p>
+    <h1 class="brand"><span class="w">D3.M0.N.</span><span class="p">IN</span></h1>
+    <p class="lead">Paste your YouTube link. Left is the original embed. Right is your player. Double-tap left to go back, right to skip ahead.</p>
     <form id="form">
-      <input id="video" type="text" value="https://www.youtube.com/watch?v=aqz-KE-bpKQ">
-      <button type="submit">Load</button>
+      <input id="video" type="text" placeholder="Paste YouTube link" autocomplete="off">
+      <button class="go" type="submit">Build</button>
     </form>
-    <div class="player" id="player">
-      <div class="crop" id="crop"></div>
-      <div class="cover" id="facade"><button id="play" type="button">Play</button></div>
-      <div class="cover end hide" id="ended">
-        <p>Yeh tumhara end card hai.</p>
-        <button id="replay" type="button">Replay</button>
-      </div>
+    <div class="grid">
+      <section class="card">
+        <p class="label">Original</p>
+        <div class="stage" id="original"><div class="empty">No video yet</div></div>
+      </section>
+      <section class="card">
+        <p class="label">Custom</p>
+        <div class="stage" id="custom">
+          <div class="crop" id="crop"></div>
+          <div class="shield" id="shield"></div>
+          <div class="flash l" id="flashL">-10</div>
+          <div class="flash r" id="flashR">+10</div>
+          <div class="cover on" id="facade"><div class="empty">Paste a link</div></div>
+          <div class="cover end" id="ended">
+            <div class="brand"><span class="w">D3.M0.N.</span><span class="p">IN</span></div>
+            <button class="play" id="replay" type="button">Replay</button>
+          </div>
+          <div class="bar" id="bar" hidden>
+            <button id="toggle" type="button">Play</button>
+            <input id="seek" type="range" min="0" max="1000" value="0">
+            <span id="time">0:00</span>
+            <button id="mute" type="button">Mute</button>
+            <span class="mark">D3.M0.N.<b>IN</b></span>
+          </div>
+        </div>
+        <p class="hint">Double-tap the left half to rewind 10s, the right half to skip 10s.</p>
+      </section>
     </div>
-    <p id="log">Waiting.</p>
   </main>
   <script>
-    var current = "aqz-KE-bpKQ";
-    var frame = null;
+    var frame = null, current = "", time = 0, duration = 0, playing = false, lastTap = 0;
 
     function parseId(raw) {
       raw = (raw || "").trim();
@@ -61,18 +135,16 @@
       } catch (err) {}
       return "";
     }
-
-    function log(text) { document.getElementById("log").textContent = text; }
-
-    function poster(id) {
-      document.getElementById("facade").style.backgroundImage = "url(https://i.ytimg.com/vi/" + id + "/hqdefault.jpg)";
+    function clock(sec) {
+      sec = Math.max(0, Math.floor(sec || 0));
+      return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0");
     }
-
-    function srcFor(id) {
+    function srcFor(id, autoplay) {
       var q = new URLSearchParams({
-        autoplay: "1",
+        autoplay: autoplay ? "1" : "0",
         controls: "0",
         rel: "0",
+        modestbranding: "1",
         iv_load_policy: "3",
         playsinline: "1",
         enablejsapi: "1",
@@ -80,60 +152,105 @@
       });
       return "https://www.youtube-nocookie.com/embed/" + id + "?" + q.toString();
     }
-
-    function mount(id) {
-      current = id;
-      poster(id);
-      document.getElementById("ended").classList.add("hide");
-      document.getElementById("facade").classList.remove("hide");
-      document.getElementById("crop").innerHTML = "";
-      frame = document.createElement("iframe");
-      frame.title = "YouTube player";
-      frame.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
-      frame.allowFullscreen = true;
-      frame.referrerPolicy = "strict-origin-when-cross-origin";
-      frame.src = srcFor(id);
-      document.getElementById("crop").appendChild(frame);
-      log("Loaded " + id + " from origin " + location.origin + ". Press Play.");
+    function cmd(func, args) {
+      if (!frame || !frame.contentWindow) return;
+      frame.contentWindow.postMessage(JSON.stringify({ event: "command", func: func, args: args || [] }), "*");
     }
-
+    function showFacade(on) { document.getElementById("facade").classList.toggle("on", on); }
+    function build(id) {
+      current = id;
+      time = 0; duration = 0; playing = false;
+      document.getElementById("ended").classList.remove("on");
+      document.getElementById("bar").hidden = true;
+      document.getElementById("original").innerHTML = '<iframe referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen src="https://www.youtube.com/embed/' + id + '?rel=0"></iframe>';
+      document.getElementById("facade").style.backgroundImage = "url(https://i.ytimg.com/vi/" + id + "/hqdefault.jpg)";
+      document.getElementById("facade").innerHTML = '<button class="play" id="play" type="button">▶</button>';
+      document.getElementById("play").onclick = start;
+      showFacade(true);
+      document.getElementById("crop").innerHTML = "";
+      frame = null;
+    }
+    function start() {
+      frame = document.createElement("iframe");
+      frame.title = "D3.M0.N.IN player";
+      frame.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+      frame.referrerPolicy = "strict-origin-when-cross-origin";
+      frame.src = srcFor(current, true);
+      document.getElementById("crop").appendChild(frame);
+      showFacade(false);
+      document.getElementById("bar").hidden = false;
+      document.getElementById("toggle").textContent = "Pause";
+      playing = true;
+      setTimeout(function () { cmd("playVideo"); }, 600);
+    }
+    function flash(id) {
+      var el = document.getElementById(id);
+      el.classList.remove("show");
+      void el.offsetWidth;
+      el.classList.add("show");
+    }
+    function jump(delta) {
+      if (!frame) return;
+      time = Math.max(0, Math.min(duration || time + delta, time + delta));
+      cmd("seekTo", [time, true]);
+      document.getElementById("time").textContent = clock(time);
+      flash(delta < 0 ? "flashL" : "flashR");
+    }
     document.getElementById("form").onsubmit = function (e) {
       e.preventDefault();
       var id = parseId(document.getElementById("video").value);
-      if (!id) return log("Link se video id nahi nikli.");
-      mount(id);
+      if (!id) return;
+      build(id);
     };
-
-    document.getElementById("play").onclick = function () {
-      if (!frame) mount(current);
-      document.getElementById("facade").classList.add("hide");
-      frame.src = srcFor(current);
-      log("Play sent. If the black box stays on Error 153, this page has no http origin.");
+    document.getElementById("toggle").onclick = function () {
+      if (!frame) return start();
+      playing ? cmd("pauseVideo") : cmd("playVideo");
     };
-
+    document.getElementById("mute").onclick = function () {
+      cmd(this.textContent === "Mute" ? "mute" : "unMute");
+      this.textContent = this.textContent === "Mute" ? "Sound" : "Mute";
+    };
     document.getElementById("replay").onclick = function () {
-      frame.src = srcFor(current);
-      document.getElementById("ended").classList.add("hide");
+      document.getElementById("ended").classList.remove("on");
+      time = 0;
+      cmd("seekTo", [0, true]);
+      cmd("playVideo");
     };
-
-    window.addEventListener("message", function (event) {
-      if (!event.origin.includes("youtube")) return;
-      var data = event.data;
-      if (typeof data === "string") {
-        try { data = JSON.parse(data); } catch (e) { return; }
-      }
-      if (data && data.event === "onStateChange" && data.info === 0) {
-        document.getElementById("ended").classList.remove("hide");
-      }
-      if (data && data.event === "onError") log("YouTube error " + data.info);
+    document.getElementById("seek").oninput = function () {
+      if (!duration) return;
+      time = (this.value / 1000) * duration;
+      cmd("seekTo", [time, true]);
+      document.getElementById("time").textContent = clock(time);
+    };
+    document.getElementById("shield").addEventListener("click", function (e) {
+      var now = Date.now();
+      var box = this.getBoundingClientRect();
+      var left = e.clientX - box.left < box.width / 2;
+      if (now - lastTap < 280) jump(left ? -10 : 10);
+      lastTap = now;
     });
-
-    if (location.protocol === "file:") {
-      log("file:// se nahi chalega. python3 -m http.server chalao, phir http://localhost:8000 se kholo.");
-    } else {
-      poster(current);
-      log("Ready on " + location.origin);
-    }
+    window.addEventListener("message", function (event) {
+      if (!String(event.origin).includes("youtube")) return;
+      var data = event.data;
+      if (typeof data === "string") { try { data = JSON.parse(data); } catch (e) { return; } }
+      if (!data) return;
+      if (data.event === "infoDelivery" && data.info) {
+        if (typeof data.info.currentTime === "number") time = data.info.currentTime;
+        if (typeof data.info.duration === "number") duration = data.info.duration;
+        if (duration) document.getElementById("seek").value = Math.floor((time / duration) * 1000);
+        document.getElementById("time").textContent = clock(time);
+        if (typeof data.info.playerState === "number") {
+          playing = data.info.playerState === 1;
+          document.getElementById("toggle").textContent = playing ? "Pause" : "Play";
+          if (data.info.playerState === 0) document.getElementById("ended").classList.add("on");
+        }
+      }
+      if (data.event === "onStateChange") {
+        playing = data.info === 1;
+        document.getElementById("toggle").textContent = playing ? "Pause" : "Play";
+        if (data.info === 0) document.getElementById("ended").classList.add("on");
+      }
+    });
   </script>
 </body>
 </html>
