@@ -2,255 +2,226 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>D3.M0.N.IN player</title>
   <style>
-    :root {
-      --purple: #7c3aed;
-      --purple-2: #a78bfa;
-      --ink: #0b0b10;
-      --card: #14141c;
-      --line: rgba(255,255,255,.12);
-      --white: #f7f7fb;
-    }
+    :root { --p: #7c3aed; --p2: #c4b5fd; --ink: #07070b; }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background:
-        radial-gradient(900px 420px at 80% -10%, rgba(124,58,237,.35), transparent 60%),
-        var(--ink);
-      color: var(--white);
-      font-family: system-ui, sans-serif;
+    html, body { margin: 0; background: var(--ink); color: #fff; font-family: system-ui, sans-serif; }
+    main { max-width: 980px; margin: 0 auto; padding: 22px 14px 40px; }
+    h1 { margin: 0; font-size: 22px; font-weight: 720; letter-spacing: .03em; }
+    h1 span { color: var(--p2); }
+    .lead { color: #aaa7b8; margin: 8px 0 16px; line-height: 1.45; }
+    .shell {
+      position: relative; width: 100%; aspect-ratio: 16/9; background: #000;
+      border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.45);
     }
-    main { max-width: 1100px; margin: 0 auto; padding: 28px 16px 48px; }
-    .brand { font-weight: 750; letter-spacing: .04em; font-size: 28px; margin: 0; }
-    .brand .w { color: #fff; }
-    .brand .p { color: var(--purple-2); }
-    .lead { color: #b7b4c7; margin: 8px 0 18px; }
-    form { display: flex; gap: 8px; margin-bottom: 18px; }
-    input {
-      flex: 1; font: inherit; color: #fff; background: #101018;
-      border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+    .shell:fullscreen, .shell:-webkit-full-screen { border-radius: 0; width: 100%; height: 100%; aspect-ratio: auto; }
+    .crop { position: absolute; inset: -72px 0; pointer-events: none; }
+    .crop iframe { width: 100%; height: 100%; border: 0; }
+    .hit { position: absolute; inset: 0; z-index: 2; }
+    .chrome {
+      position: absolute; inset: 0; z-index: 3; pointer-events: none;
+      opacity: 1; transition: opacity .28s ease;
     }
-    button.go {
-      font: inherit; font-weight: 700; border: 0; border-radius: 12px;
-      padding: 12px 16px; cursor: pointer; color: #fff;
-      background: linear-gradient(180deg, #8b5cf6, var(--purple));
+    .chrome.hide { opacity: 0; }
+    .chrome button, .chrome input { pointer-events: auto; }
+    .logo {
+      position: absolute; top: 14px; left: 14px; font-weight: 760; letter-spacing: .04em;
+      text-shadow: 0 2px 10px rgba(0,0,0,.7); font-size: 16px;
     }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
-    .label { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: #b7b4c7; margin: 0 0 8px; }
-    .stage { position: relative; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; }
-    .stage iframe { width: 100%; height: 100%; border: 0; }
-    .crop { position: absolute; inset: -64px 0; pointer-events: none; }
-    .crop iframe { width: 100%; height: 100%; border: 0; pointer-events: none; }
-    .shield { position: absolute; inset: 0; z-index: 2; }
-    .cover {
-      position: absolute; inset: 0; z-index: 3; display: none;
-      place-items: center; background: #000 center/cover no-repeat;
-    }
-    .cover.on { display: grid; }
-    .play {
-      width: 74px; height: 74px; border-radius: 50%; border: 0; cursor: pointer;
-      color: #fff; font-size: 26px;
-      background: linear-gradient(180deg, #8b5cf6, var(--purple));
-      box-shadow: 0 10px 30px rgba(124,58,237,.45);
-    }
-    .empty { color: #b7b4c7; text-align: center; padding: 24px; }
+    .logo b { color: var(--p2); font-weight: 760; }
     .flash {
-      position: absolute; top: 42%; z-index: 5; color: #fff; font-weight: 700;
-      background: rgba(124,58,237,.82); border-radius: 999px; padding: 8px 12px;
-      opacity: 0; pointer-events: none;
+      position: absolute; top: 42%; z-index: 4; padding: 8px 12px; border-radius: 999px;
+      background: rgba(124,58,237,.88); font-weight: 720; opacity: 0; pointer-events: none;
     }
-    .flash.l { left: 18px; } .flash.r { right: 18px; }
-    .flash.show { animation: pop .6s ease; }
-    @keyframes pop { 0% { opacity: 0; transform: scale(.9); } 20% { opacity: 1; } 100% { opacity: 0; } }
+    .flash.l { left: 16px; } .flash.r { right: 16px; }
+    .flash.show { animation: pop .55s ease; }
+    @keyframes pop { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
+    .poster, .end {
+      position: absolute; inset: 0; z-index: 5; display: grid; place-items: center;
+      background: #000 center/cover no-repeat;
+    }
+    .poster.off, .end.off { display: none; }
+    .end { background-color: rgba(0,0,0,.78); text-align: center; gap: 12px; }
+    .play {
+      width: 78px; height: 78px; border: 0; border-radius: 50%; color: #fff; font-size: 28px; cursor: pointer;
+      background: linear-gradient(180deg, #8b5cf6, var(--p));
+      box-shadow: 0 12px 30px rgba(124,58,237,.5);
+    }
     .bar {
-      position: absolute; left: 0; right: 0; bottom: 0; z-index: 4;
-      display: flex; gap: 8px; align-items: center; padding: 10px;
-      background: linear-gradient(transparent, rgba(8,8,14,.9));
+      position: absolute; left: 0; right: 0; bottom: 0; display: grid; gap: 6px;
+      padding: 28px 12px 12px;
+      background: linear-gradient(transparent, rgba(0,0,0,.82));
     }
-    .bar button { color: #fff; background: transparent; border: 0; cursor: pointer; font: inherit; }
-    .bar input { flex: 1; accent-color: var(--purple); }
-    .mark { font-size: 12px; letter-spacing: .04em; }
-    .mark b { color: var(--purple-2); font-weight: 750; }
-    .end { background: rgba(8,8,14,.88); text-align: center; gap: 10px; padding: 16px; }
-    .hint { color: #b7b4c7; font-size: 13px; margin-top: 10px; }
+    .seek { width: 100%; accent-color: var(--p); height: 18px; }
+    .row { display: flex; align-items: center; gap: 8px; }
+    .row button, .vol {
+      color: #fff; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px; padding: 7px 10px; cursor: pointer; font: inherit;
+    }
+    .time { font-variant-numeric: tabular-nums; font-size: 13px; min-width: 84px; }
+    .vol { width: 84px; accent-color: var(--p); }
+    .spacer { flex: 1; }
+    .note { color: #aaa7b8; font-size: 13px; }
   </style>
 </head>
 <body>
   <main>
-    <h1 class="brand"><span class="w">D3.M0.N.</span><span class="p">IN</span></h1>
-    <p class="lead">Paste your YouTube link. Left is the original embed. Right is your player. Double-tap left to go back, right to skip ahead.</p>
-    <form id="form">
-      <input id="video" type="text" placeholder="Paste YouTube link" autocomplete="off">
-      <button class="go" type="submit">Build</button>
-    </form>
-    <div class="grid">
-      <section class="card">
-        <p class="label">Original</p>
-        <div class="stage" id="original"><div class="empty">No video yet</div></div>
-      </section>
-      <section class="card">
-        <p class="label">Custom</p>
-        <div class="stage" id="custom">
-          <div class="crop" id="crop"></div>
-          <div class="shield" id="shield"></div>
-          <div class="flash l" id="flashL">-10</div>
-          <div class="flash r" id="flashR">+10</div>
-          <div class="cover on" id="facade"><div class="empty">Paste a link</div></div>
-          <div class="cover end" id="ended">
-            <div class="brand"><span class="w">D3.M0.N.</span><span class="p">IN</span></div>
-            <button class="play" id="replay" type="button">Replay</button>
-          </div>
-          <div class="bar" id="bar" hidden>
+    <h1>D3M0N.<span>IN</span></h1>
+    <p class="lead">Big Buck Bunny is loaded. Controls hide on their own. Tap the picture to bring them back. Double-tap left or right to skip.</p>
+    <div class="shell" id="shell">
+      <div class="crop" id="crop"></div>
+      <div class="hit" id="hit"></div>
+      <div class="flash l" id="flashL">-10</div>
+      <div class="flash r" id="flashR">+10</div>
+      <div class="chrome" id="chrome">
+        <div class="logo">D3.M0.N.<b>IN</b></div>
+        <div class="bar">
+          <input class="seek" id="seek" type="range" min="0" max="1000" value="0">
+          <div class="row">
             <button id="toggle" type="button">Play</button>
-            <input id="seek" type="range" min="0" max="1000" value="0">
-            <span id="time">0:00</span>
+            <span class="time" id="time">0:00 / 0:00</span>
             <button id="mute" type="button">Mute</button>
-            <span class="mark">D3.M0.N.<b>IN</b></span>
+            <input class="vol" id="vol" type="range" min="0" max="100" value="100">
+            <button id="rate" type="button">1×</button>
+            <span class="spacer"></span>
+            <button id="full" type="button">Full</button>
           </div>
         </div>
-        <p class="hint">Double-tap the left half to rewind 10s, the right half to skip 10s.</p>
-      </section>
+      </div>
+      <div class="poster" id="poster">
+        <button class="play" id="start" type="button">▶</button>
+      </div>
+      <div class="end off" id="end">
+        <div class="logo" style="position:static">D3.M0.N.<b>IN</b></div>
+        <button class="play" id="replay" type="button">▶</button>
+      </div>
     </div>
+    <p class="note">Open this over https, not as a downloaded file.</p>
   </main>
   <script>
-    var frame = null, current = "", time = 0, duration = 0, playing = false, lastTap = 0;
+    var VIDEO = "aqz-KE-bpKQ";
+    var player = null, hideTimer = null, rates = [1, 1.25, 1.5, 2], rateAt = 0, lastTap = 0;
 
-    function parseId(raw) {
-      raw = (raw || "").trim();
-      if (/^[\w-]{11}$/.test(raw)) return raw;
-      try {
-        var u = new URL(raw);
-        if (u.hostname === "youtu.be") return u.pathname.slice(1, 12);
-        if (u.searchParams.get("v")) return u.searchParams.get("v");
-        var parts = u.pathname.split("/");
-        var e = parts.indexOf("embed");
-        if (e !== -1) return parts[e + 1];
-        var s = parts.indexOf("shorts");
-        if (s !== -1) return parts[s + 1];
-      } catch (err) {}
-      return "";
+    function clock(n) {
+      n = Math.max(0, Math.floor(n || 0));
+      return Math.floor(n / 60) + ":" + String(n % 60).padStart(2, "0");
     }
-    function clock(sec) {
-      sec = Math.max(0, Math.floor(sec || 0));
-      return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0");
+    function showChrome() {
+      document.getElementById("chrome").classList.remove("hide");
+      clearTimeout(hideTimer);
+      if (player && player.getPlayerState && player.getPlayerState() === 1) {
+        hideTimer = setTimeout(function () { document.getElementById("chrome").classList.add("hide"); }, 2600);
+      }
     }
-    function srcFor(id, autoplay) {
-      var q = new URLSearchParams({
-        autoplay: autoplay ? "1" : "0",
-        controls: "0",
-        rel: "0",
-        modestbranding: "1",
-        iv_load_policy: "3",
-        playsinline: "1",
-        enablejsapi: "1",
-        origin: location.origin
+    function paint() {
+      if (!player || !player.getDuration) return;
+      var d = player.getDuration() || 0, c = player.getCurrentTime() || 0;
+      if (d) document.getElementById("seek").value = Math.floor((c / d) * 1000);
+      document.getElementById("time").textContent = clock(c) + " / " + clock(d);
+      document.getElementById("toggle").textContent = player.getPlayerState() === 1 ? "Pause" : "Play";
+    }
+    function boot() {
+      player = new YT.Player("crop", {
+        videoId: VIDEO,
+        host: "https://www.youtube-nocookie.com",
+        width: "100%",
+        height: "100%",
+        playerVars: {
+          autoplay: 1, controls: 0, rel: 0, iv_load_policy: 3,
+          disablekb: 1, playsinline: 1, fs: 0, origin: location.origin
+        },
+        events: {
+          onReady: function () {
+            var frame = document.querySelector("#crop iframe");
+            if (frame) frame.referrerPolicy = "strict-origin-when-cross-origin";
+            player.playVideo();
+            document.getElementById("poster").classList.add("off");
+            showChrome();
+          },
+          onStateChange: function (e) {
+            paint();
+            if (e.data === 1) showChrome();
+            if (e.data === 2) document.getElementById("chrome").classList.remove("hide");
+            document.getElementById("end").classList.toggle("off", e.data !== 0);
+          },
+          onError: function (e) {
+            document.getElementById("time").textContent = "Error " + e.data;
+          }
+        }
       });
-      return "https://www.youtube-nocookie.com/embed/" + id + "?" + q.toString();
+      setInterval(paint, 400);
     }
-    function cmd(func, args) {
-      if (!frame || !frame.contentWindow) return;
-      frame.contentWindow.postMessage(JSON.stringify({ event: "command", func: func, args: args || [] }), "*");
-    }
-    function showFacade(on) { document.getElementById("facade").classList.toggle("on", on); }
-    function build(id) {
-      current = id;
-      time = 0; duration = 0; playing = false;
-      document.getElementById("ended").classList.remove("on");
-      document.getElementById("bar").hidden = true;
-      document.getElementById("original").innerHTML = '<iframe referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen src="https://www.youtube.com/embed/' + id + '?rel=0"></iframe>';
-      document.getElementById("facade").style.backgroundImage = "url(https://i.ytimg.com/vi/" + id + "/hqdefault.jpg)";
-      document.getElementById("facade").innerHTML = '<button class="play" id="play" type="button">▶</button>';
-      document.getElementById("play").onclick = start;
-      showFacade(true);
-      document.getElementById("crop").innerHTML = "";
-      frame = null;
-    }
-    function start() {
-      frame = document.createElement("iframe");
-      frame.title = "D3.M0.N.IN player";
-      frame.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
-      frame.referrerPolicy = "strict-origin-when-cross-origin";
-      frame.src = srcFor(current, true);
-      document.getElementById("crop").appendChild(frame);
-      showFacade(false);
-      document.getElementById("bar").hidden = false;
-      document.getElementById("toggle").textContent = "Pause";
-      playing = true;
-      setTimeout(function () { cmd("playVideo"); }, 600);
-    }
-    function flash(id) {
-      var el = document.getElementById(id);
-      el.classList.remove("show");
-      void el.offsetWidth;
-      el.classList.add("show");
+    function ensure() {
+      if (player) return;
+      if (window.YT && YT.Player) boot();
+      else {
+        window.onYouTubeIframeAPIReady = boot;
+        var s = document.createElement("script");
+        s.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(s);
+      }
     }
     function jump(delta) {
-      if (!frame) return;
-      time = Math.max(0, Math.min(duration || time + delta, time + delta));
-      cmd("seekTo", [time, true]);
-      document.getElementById("time").textContent = clock(time);
-      flash(delta < 0 ? "flashL" : "flashR");
+      if (!player) return;
+      var next = Math.max(0, (player.getCurrentTime() || 0) + delta);
+      player.seekTo(next, true);
+      var el = document.getElementById(delta < 0 ? "flashL" : "flashR");
+      el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
+      showChrome();
     }
-    document.getElementById("form").onsubmit = function (e) {
-      e.preventDefault();
-      var id = parseId(document.getElementById("video").value);
-      if (!id) return;
-      build(id);
+    document.getElementById("poster").style.backgroundImage = "url(https://i.ytimg.com/vi/" + VIDEO + "/hqdefault.jpg)";
+    document.getElementById("start").onclick = ensure;
+    document.getElementById("replay").onclick = function () {
+      document.getElementById("end").classList.add("off");
+      player.seekTo(0, true); player.playVideo();
     };
     document.getElementById("toggle").onclick = function () {
-      if (!frame) return start();
-      playing ? cmd("pauseVideo") : cmd("playVideo");
+      if (!player) return ensure();
+      player.getPlayerState() === 1 ? player.pauseVideo() : player.playVideo();
+      showChrome();
     };
     document.getElementById("mute").onclick = function () {
-      cmd(this.textContent === "Mute" ? "mute" : "unMute");
-      this.textContent = this.textContent === "Mute" ? "Sound" : "Mute";
+      if (!player) return;
+      player.isMuted() ? player.unMute() : player.mute();
+      this.textContent = player.isMuted() ? "Sound" : "Mute";
+      showChrome();
     };
-    document.getElementById("replay").onclick = function () {
-      document.getElementById("ended").classList.remove("on");
-      time = 0;
-      cmd("seekTo", [0, true]);
-      cmd("playVideo");
+    document.getElementById("vol").oninput = function () {
+      if (!player) return;
+      player.setVolume(Number(this.value));
+      if (Number(this.value) === 0) player.mute(); else player.unMute();
+      showChrome();
     };
     document.getElementById("seek").oninput = function () {
-      if (!duration) return;
-      time = (this.value / 1000) * duration;
-      cmd("seekTo", [time, true]);
-      document.getElementById("time").textContent = clock(time);
+      if (!player || !player.getDuration()) return;
+      player.seekTo((this.value / 1000) * player.getDuration(), true);
+      showChrome();
     };
-    document.getElementById("shield").addEventListener("click", function (e) {
+    document.getElementById("rate").onclick = function () {
+      if (!player) return;
+      rateAt = (rateAt + 1) % rates.length;
+      player.setPlaybackRate(rates[rateAt]);
+      this.textContent = rates[rateAt] + "×";
+      showChrome();
+    };
+    document.getElementById("full").onclick = function () {
+      var el = document.getElementById("shell");
+      if (document.fullscreenElement) document.exitFullscreen();
+      else (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+      showChrome();
+    };
+    document.getElementById("hit").addEventListener("click", function (e) {
       var now = Date.now();
       var box = this.getBoundingClientRect();
       var left = e.clientX - box.left < box.width / 2;
-      if (now - lastTap < 280) jump(left ? -10 : 10);
+      if (now - lastTap < 280 && player) jump(left ? -10 : 10);
+      else showChrome();
       lastTap = now;
     });
-    window.addEventListener("message", function (event) {
-      if (!String(event.origin).includes("youtube")) return;
-      var data = event.data;
-      if (typeof data === "string") { try { data = JSON.parse(data); } catch (e) { return; } }
-      if (!data) return;
-      if (data.event === "infoDelivery" && data.info) {
-        if (typeof data.info.currentTime === "number") time = data.info.currentTime;
-        if (typeof data.info.duration === "number") duration = data.info.duration;
-        if (duration) document.getElementById("seek").value = Math.floor((time / duration) * 1000);
-        document.getElementById("time").textContent = clock(time);
-        if (typeof data.info.playerState === "number") {
-          playing = data.info.playerState === 1;
-          document.getElementById("toggle").textContent = playing ? "Pause" : "Play";
-          if (data.info.playerState === 0) document.getElementById("ended").classList.add("on");
-        }
-      }
-      if (data.event === "onStateChange") {
-        playing = data.info === 1;
-        document.getElementById("toggle").textContent = playing ? "Pause" : "Play";
-        if (data.info === 0) document.getElementById("ended").classList.add("on");
-      }
-    });
+    document.getElementById("shell").addEventListener("mousemove", showChrome);
   </script>
 </body>
 </html>
