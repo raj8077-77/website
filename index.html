@@ -6,105 +6,131 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>D3M0N.IN</title>
   <style>
-    :root { --p: #7c3aed; --p2: #c4b5fd; --ink: #07070c; }
+    :root { --p: #7c3aed; --p2: #c4b5fd; --ink: #050508; }
     * { box-sizing: border-box; }
     html, body { margin: 0; background: var(--ink); color: #fff; font-family: system-ui, sans-serif; }
-    main { max-width: 960px; margin: 0 auto; padding: 20px 14px 36px; }
-    h1 { margin: 0; font-size: 20px; font-weight: 730; }
-    h1 b { color: var(--p2); font-weight: 730; }
-    .lead { color: #9d9aab; margin: 8px 0 14px; line-height: 1.45; font-size: 14px; }
+    main { max-width: 920px; margin: 0 auto; padding: 16px 12px 28px; }
+    h1 { margin: 0 0 12px; font-size: 18px; font-weight: 740; }
+    h1 b { color: var(--p2); font-weight: 740; }
     .shell {
       position: relative; width: 100%; aspect-ratio: 16/9; background: #000;
-      border-radius: 18px; overflow: hidden; touch-action: none;
-      box-shadow: 0 16px 50px rgba(0,0,0,.4);
+      border-radius: 14px; overflow: hidden; touch-action: manipulation;
     }
-    .shell:fullscreen, .shell:-webkit-full-screen { border-radius: 0; width: 100%; height: 100%; aspect-ratio: auto; }
-    #yt, #yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .mask-top, .mask-mark {
-      position: absolute; z-index: 2; pointer-events: none; background: #000;
+    .shell.fs {
+      position: fixed; inset: 0; z-index: 40; border-radius: 0; width: 100%; height: 100%;
+      aspect-ratio: auto; background: #000;
     }
-    .mask-top { top: 0; left: 0; right: 0; height: 48px; }
-    .mask-mark { right: 0; bottom: 0; width: 92px; height: 36px; }
+    .stage { position: absolute; inset: 0; overflow: hidden; background: #000; }
+    #yt, #yt iframe { position: absolute; border: 0; pointer-events: none; }
+    #yt { left: 0; width: 100%; top: -42px; height: calc(100% + 84px); }
+    #yt iframe { width: 100%; height: 100%; }
+    .veil-top, .veil-bot {
+      position: absolute; left: 0; right: 0; z-index: 2; pointer-events: none; background: #000;
+    }
+    .veil-top { top: 0; height: 28px; }
+    .veil-bot { bottom: 0; height: 34px; }
     .hit { position: absolute; inset: 0; z-index: 3; }
-    .hud, .volhud {
-      position: absolute; z-index: 6; opacity: 0; pointer-events: none; transition: opacity .2s;
+    .flash, .vol {
+      position: absolute; z-index: 6; display: none; pointer-events: none;
     }
-    .hud.show, .volhud.show { opacity: 1; }
-    .hud { top: 42%; padding: 8px 12px; border-radius: 999px; background: rgba(124,58,237,.9); font-weight: 720; }
-    .hud.l { left: 16px; } .hud.r { right: 16px; }
-    .volhud {
-      right: 16px; top: 50%; transform: translateY(-50%);
-      width: 36px; height: 120px; border-radius: 18px; background: rgba(0,0,0,.55);
-      display: flex; align-items: flex-end; padding: 8px; 
+    .flash.on, .vol.on { display: grid; }
+    .flash {
+      top: 46%; place-items: center; min-width: 52px; height: 28px; padding: 0 10px;
+      border-radius: 999px; background: rgba(124,58,237,.92); font-size: 13px; font-weight: 720;
     }
-    .volhud i { display: block; width: 100%; border-radius: 99px; background: linear-gradient(#c4b5fd, #7c3aed); height: 40%; }
-    .chrome { position: absolute; inset: 0; z-index: 5; opacity: 1; transition: opacity .25s; pointer-events: none; }
+    .flash.l { left: 12px; } .flash.r { right: 12px; }
+    .vol {
+      right: 10px; top: 50%; transform: translateY(-50%);
+      width: 28px; height: 108px; border-radius: 14px; background: rgba(0,0,0,.62);
+      align-items: end; padding: 6px;
+    }
+    .vol i { display: block; width: 100%; border-radius: 99px; background: var(--p2); }
+    .curtain, .end {
+      position: absolute; inset: 0; z-index: 4; display: grid; place-items: center;
+      background: rgba(0,0,0,.55);
+    }
+    .curtain.off, .end.off { display: none; }
+    .end { background: rgba(0,0,0,.82); text-align: center; gap: 8px; }
+    .play {
+      width: 58px; height: 58px; border: 0; border-radius: 50%; color: #fff; cursor: pointer;
+      background: linear-gradient(180deg, #8b5cf6, var(--p));
+      display: grid; place-items: center;
+    }
+    .chrome {
+      position: absolute; inset: 0; z-index: 5; pointer-events: none;
+      opacity: 1; transition: opacity .2s;
+    }
     .chrome.hide { opacity: 0; }
     .chrome button, .chrome input { pointer-events: auto; }
-    .logo { position: absolute; top: 12px; left: 14px; font-weight: 760; letter-spacing: .02em; font-size: 15px; z-index: 6; }
+    .logo {
+      position: absolute; top: 8px; left: 10px; z-index: 6;
+      font-size: 13px; font-weight: 760; letter-spacing: .01em;
+      text-shadow: 0 1px 6px #000;
+    }
     .logo b { color: var(--p2); }
-    .pause, .end {
-      position: absolute; inset: 0; z-index: 4; display: grid; place-items: center;
-      background: rgba(0,0,0,.45);
-    }
-    .pause.off, .end.off { display: none; }
-    .end { background: rgba(0,0,0,.78); gap: 10px; text-align: center; }
-    .play {
-      width: 72px; height: 72px; border: 0; border-radius: 50%; color: #fff; font-size: 26px; cursor: pointer;
-      background: linear-gradient(180deg, #8b5cf6, var(--p));
-    }
     .bar {
-      position: absolute; left: 0; right: 0; bottom: 0; padding: 22px 12px 10px;
-      background: linear-gradient(transparent, rgba(0,0,0,.88));
-      display: grid; gap: 6px;
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 6;
+      padding: 16px 8px 8px;
+      background: linear-gradient(transparent, rgba(0,0,0,.92) 42%);
     }
-    .seek { width: 100%; accent-color: var(--p); }
-    .row { display: flex; align-items: center; gap: 8px; }
-    .row button {
-      color: #fff; background: rgba(255,255,255,.1); border: 0; border-radius: 999px;
-      padding: 7px 11px; cursor: pointer; font: inherit;
+    .seek { width: 100%; height: 16px; margin: 0; accent-color: var(--p); }
+    .row { display: flex; align-items: center; gap: 6px; min-height: 36px; }
+    .ico {
+      width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%;
+      color: #fff; background: rgba(255,255,255,.1); cursor: pointer;
+      display: grid; place-items: center; flex: 0 0 auto;
     }
-    .time { font-size: 12px; font-variant-numeric: tabular-nums; }
+    .ico svg { width: 16px; height: 16px; fill: currentColor; }
+    .time { font-size: 11px; font-variant-numeric: tabular-nums; opacity: .9; }
     .spacer { flex: 1; }
-    .note { color: #9d9aab; font-size: 12px; }
+    .rate { width: auto; padding: 0 8px; border-radius: 999px; font: inherit; font-size: 12px; }
+    @media (min-width: 800px) {
+      .play { width: 72px; height: 72px; }
+      .ico { width: 38px; height: 38px; }
+      .ico svg { width: 18px; height: 18px; }
+      .logo { font-size: 15px; top: 12px; left: 14px; }
+      .time { font-size: 13px; }
+    }
   </style>
 </head>
 <body>
   <main>
     <h1>D3M0N<b>.IN</b></h1>
-    <p class="lead">Video stays inside the frame. YouTube title, copy-link and pause screen stay covered. Swipe the right side up or down for volume.</p>
     <div class="shell" id="shell">
-      <div id="yt"></div>
-      <div class="mask-top"></div>
-      <div class="mask-mark"></div>
+      <div class="stage"><div id="yt"></div></div>
+      <div class="veil-top"></div>
+      <div class="veil-bot"></div>
       <div class="hit" id="hit"></div>
-      <div class="hud l" id="hudL">-10</div>
-      <div class="hud r" id="hudR">+10</div>
-      <div class="volhud" id="volhud"><i id="volfill"></i></div>
-      <div class="pause" id="pause"><button class="play" id="start" type="button">▶</button></div>
+      <div class="flash l" id="flashL">-10</div>
+      <div class="flash r" id="flashR">+10</div>
+      <div class="vol" id="vol"><i id="volfill"></i></div>
+      <div class="curtain" id="curtain"><button class="play" id="start" type="button" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div>
       <div class="end off" id="end">
         <div class="logo" style="position:static">D3M0N<b>.IN</b></div>
-        <button class="play" id="replay" type="button">▶</button>
+        <button class="play" id="replay" type="button" aria-label="Replay"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
       </div>
       <div class="chrome" id="chrome">
         <div class="logo">D3M0N<b>.IN</b></div>
         <div class="bar">
-          <input class="seek" id="seek" type="range" min="0" max="1000" value="0">
+          <input class="seek" id="seek" type="range" min="0" max="1000" value="0" aria-label="Seek">
           <div class="row">
-            <button id="toggle" type="button">Play</button>
+            <button class="ico" id="toggle" type="button" aria-label="Play"></button>
             <span class="time" id="time">0:00 / 0:00</span>
             <span class="spacer"></span>
-            <button id="rate" type="button">1×</button>
-            <button id="full" type="button">Full</button>
+            <button class="ico rate" id="rate" type="button">1×</button>
+            <button class="ico" id="full" type="button" aria-label="Fullscreen"></button>
           </div>
         </div>
       </div>
     </div>
-    <p class="note">A page cannot change the phone’s hardware volume. The swipe changes this video’s volume and shows the level on screen. Open over https.</p>
   </main>
   <script>
     var VIDEO = "aqz-KE-bpKQ";
-    var player = null, timer = null, lastTap = 0, rates = [1, 1.25, 1.5, 2], rateAt = 0, vol = 100;
+    var player = null, hideT = null, lastTap = 0, vol = 100, rates = [1, 1.25, 1.5, 2], rateAt = 0;
+    var playI = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+    var pauseI = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>';
+    var fullI = '<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7zm0-4h2V7h3V5H7zm10 9h-3v2h5v-5h-2zm0-9V5h-5v2h3v3z"/></svg>';
+    var exitI = '<svg viewBox="0 0 24 24"><path d="M5 16h3v3h2v-5H5zm3-8H5v2h5V5H8zm6 11h2v-3h3v-2h-5zm2-11V5h-2v5h5V8z"/></svg>';
 
     function clock(n) {
       n = Math.max(0, Math.floor(n || 0));
@@ -113,31 +139,37 @@
     function showChrome() {
       var c = document.getElementById("chrome");
       c.classList.remove("hide");
-      clearTimeout(timer);
+      clearTimeout(hideT);
       if (player && player.getPlayerState && player.getPlayerState() === 1) {
-        timer = setTimeout(function () { c.classList.add("hide"); }, 2400);
+        hideT = setTimeout(function () { c.classList.add("hide"); }, 2200);
       }
+    }
+    function burst(id) {
+      var el = document.getElementById(id);
+      el.classList.add("on");
+      clearTimeout(el._t);
+      el._t = setTimeout(function () { el.classList.remove("on"); }, 550);
     }
     function setVol(n) {
       vol = Math.max(0, Math.min(100, Math.round(n)));
-      if (player) {
-        player.setVolume(vol);
-        vol === 0 ? player.mute() : player.unMute();
-      }
+      if (player) { player.setVolume(vol); vol ? player.unMute() : player.mute(); }
       document.getElementById("volfill").style.height = vol + "%";
-      var hud = document.getElementById("volhud");
-      hud.classList.add("show");
-      clearTimeout(hud._t);
-      hud._t = setTimeout(function () { hud.classList.remove("show"); }, 700);
+      var box = document.getElementById("vol");
+      box.classList.add("on");
+      clearTimeout(box._t);
+      box._t = setTimeout(function () { box.classList.remove("on"); }, 650);
     }
     function paint() {
       if (!player || !player.getDuration) return;
       var d = player.getDuration() || 0, t = player.getCurrentTime() || 0, st = player.getPlayerState();
-      if (d) document.getElementById("seek").value = Math.floor((t / d) * 1000);
+      if (d && document.activeElement !== document.getElementById("seek")) {
+        document.getElementById("seek").value = Math.floor((t / d) * 1000);
+      }
       document.getElementById("time").textContent = clock(t) + " / " + clock(d);
-      document.getElementById("toggle").textContent = st === 1 ? "Pause" : "Play";
-      document.getElementById("pause").classList.toggle("off", st === 1);
+      document.getElementById("toggle").innerHTML = st === 1 ? pauseI : playI;
+      document.getElementById("curtain").classList.toggle("off", st === 1 || st === 3);
       document.getElementById("end").classList.toggle("off", st !== 0);
+      document.getElementById("full").innerHTML = document.getElementById("shell").classList.contains("fs") ? exitI : fullI;
     }
     function boot() {
       player = new YT.Player("yt", {
@@ -146,8 +178,8 @@
         width: "100%",
         height: "100%",
         playerVars: {
-          autoplay: 1, controls: 0, rel: 0, iv_load_policy: 3,
-          disablekb: 1, playsinline: 1, fs: 0, modestbranding: 1, origin: location.origin
+          autoplay: 1, controls: 0, rel: 0, iv_load_policy: 3, disablekb: 1,
+          playsinline: 1, fs: 0, modestbranding: 1, origin: location.origin
         },
         events: {
           onReady: function () {
@@ -160,7 +192,7 @@
           onStateChange: function (e) {
             paint();
             if (e.data === 1) showChrome();
-            if (e.data === 2) document.getElementById("chrome").classList.remove("hide");
+            if (e.data !== 1) document.getElementById("chrome").classList.remove("hide");
           }
         }
       });
@@ -179,13 +211,12 @@
     function jump(delta) {
       if (!player) return;
       player.seekTo(Math.max(0, (player.getCurrentTime() || 0) + delta), true);
-      var el = document.getElementById(delta < 0 ? "hudL" : "hudR");
-      el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
+      burst(delta < 0 ? "flashL" : "flashR");
     }
+    document.getElementById("toggle").innerHTML = playI;
+    document.getElementById("full").innerHTML = fullI;
     document.getElementById("start").onclick = function (e) { e.stopPropagation(); ensure(); };
-    document.getElementById("replay").onclick = function () {
-      player.seekTo(0, true); player.playVideo();
-    };
+    document.getElementById("replay").onclick = function () { player.seekTo(0, true); player.playVideo(); };
     document.getElementById("toggle").onclick = function () {
       if (!player) return ensure();
       player.getPlayerState() === 1 ? player.pauseVideo() : player.playVideo();
@@ -204,9 +235,9 @@
       showChrome();
     };
     document.getElementById("full").onclick = function () {
-      var el = document.getElementById("shell");
-      if (document.fullscreenElement) document.exitFullscreen();
-      else (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+      document.getElementById("shell").classList.toggle("fs");
+      paint();
+      showChrome();
     };
     document.getElementById("hit").addEventListener("click", function (e) {
       var now = Date.now();
@@ -218,14 +249,12 @@
     });
     var drag = null;
     document.getElementById("hit").addEventListener("touchstart", function (e) {
-      var t = e.changedTouches[0];
-      var box = this.getBoundingClientRect();
-      if (t.clientX - box.left > box.width * 0.62) drag = { y: t.clientY, vol: vol };
+      var t = e.changedTouches[0], box = this.getBoundingClientRect();
+      if (t.clientX - box.left > box.width * 0.7) drag = { y: t.clientY, vol: vol };
     }, { passive: true });
     document.getElementById("hit").addEventListener("touchmove", function (e) {
       if (!drag) return;
-      var t = e.changedTouches[0];
-      setVol(drag.vol + (drag.y - t.clientY) * 0.45);
+      setVol(drag.vol + (drag.y - e.changedTouches[0].clientY) * 0.5);
     }, { passive: true });
     document.getElementById("hit").addEventListener("touchend", function () { drag = null; });
     document.getElementById("shell").addEventListener("mousemove", showChrome);
