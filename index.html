@@ -16,9 +16,8 @@
       position: relative; width: 100%; aspect-ratio: 16/9; background: #000;
       border-radius: 14px; overflow: hidden; touch-action: manipulation;
     }
-    .shell.fs {
-      position: fixed; inset: 0; z-index: 40; border-radius: 0; width: 100%; height: 100%;
-      aspect-ratio: auto; background: #000;
+    .shell:fullscreen, .shell:-webkit-full-screen {
+      border-radius: 0; width: 100%; height: 100%; aspect-ratio: auto; background: #000;
     }
     .stage { position: absolute; inset: 0; overflow: hidden; background: #000; }
     #yt, #yt iframe { position: absolute; border: 0; pointer-events: none; }
@@ -30,27 +29,27 @@
     .veil-top { top: 0; height: 28px; }
     .veil-bot { bottom: 0; height: 34px; }
     .hit { position: absolute; inset: 0; z-index: 3; }
-    .flash, .vol {
-      position: absolute; z-index: 6; display: none; pointer-events: none;
-    }
-    .flash.on, .vol.on { display: grid; }
+    .flash, .meter { position: absolute; z-index: 6; display: none; pointer-events: none; }
+    .flash.on, .meter.on { display: grid; }
     .flash {
       top: 46%; place-items: center; min-width: 52px; height: 28px; padding: 0 10px;
       border-radius: 999px; background: rgba(124,58,237,.92); font-size: 13px; font-weight: 720;
     }
     .flash.l { left: 12px; } .flash.r { right: 12px; }
-    .vol {
-      right: 10px; top: 50%; transform: translateY(-50%);
-      width: 28px; height: 108px; border-radius: 14px; background: rgba(0,0,0,.62);
-      align-items: end; padding: 6px;
+    .meter {
+      top: 50%; transform: translateY(-50%); width: 28px; height: 108px;
+      border-radius: 14px; background: rgba(0,0,0,.62); align-items: end; padding: 6px;
     }
-    .vol i { display: block; width: 100%; border-radius: 99px; background: var(--p2); }
+    .meter.r { right: 10px; } .meter.l { left: 10px; }
+    .meter i { display: block; width: 100%; border-radius: 99px; background: var(--p2); }
     .curtain, .end {
       position: absolute; inset: 0; z-index: 4; display: grid; place-items: center;
-      background: rgba(0,0,0,.55);
     }
+    .curtain { background: rgba(0,0,0,.55); }
     .curtain.off, .end.off { display: none; }
-    .end { background: rgba(0,0,0,.82); text-align: center; gap: 8px; }
+    .end { background: #000; }
+    .end img { width: 100%; height: 100%; object-fit: cover; }
+    .end .play { position: absolute; }
     .play {
       width: 58px; height: 58px; border: 0; border-radius: 50%; color: #fff; cursor: pointer;
       background: linear-gradient(180deg, #8b5cf6, var(--p));
@@ -97,18 +96,19 @@
   <main>
     <h1>D3M0N<b>.IN</b></h1>
     <div class="shell" id="shell">
-      <div class="stage"><div id="yt"></div></div>
+      <div class="stage" id="stage"><div id="yt"></div></div>
       <div class="veil-top"></div>
       <div class="veil-bot"></div>
       <div class="hit" id="hit"></div>
       <div class="flash l" id="flashL">-10</div>
       <div class="flash r" id="flashR">+10</div>
-      <div class="vol" id="vol"><i id="volfill"></i></div>
+      <div class="meter l" id="brit"><i id="britfill"></i></div>
+      <div class="meter r" id="vol"><i id="volfill"></i></div>
       <div class="curtain" id="curtain"><button class="play" id="start" type="button" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div>
-      <div class="end off" id="end">
-        <div class="logo" style="position:static">D3M0N<b>.IN</b></div>
-        <button class="play" id="replay" type="button" aria-label="Replay"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-      </div>
+      <button class="end off" id="end" type="button" aria-label="Play again">
+        <img id="thumb" alt="">
+        <span class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+      </button>
       <div class="chrome" id="chrome">
         <div class="logo">D3M0N<b>.IN</b></div>
         <div class="bar">
@@ -126,23 +126,32 @@
   </main>
   <script>
     var VIDEO = "aqz-KE-bpKQ";
-    var player = null, hideT = null, lastTap = 0, vol = 100, rates = [1, 1.25, 1.5, 2], rateAt = 0;
+    var player = null, hideT = null, lastTap = 0, vol = 100, bright = 100;
+    var rates = [1, 1.25, 1.5, 2], rateAt = 0;
     var playI = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
     var pauseI = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>';
     var fullI = '<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7zm0-4h2V7h3V5H7zm10 9h-3v2h5v-5h-2zm0-9V5h-5v2h3v3z"/></svg>';
     var exitI = '<svg viewBox="0 0 24 24"><path d="M5 16h3v3h2v-5H5zm3-8H5v2h5V5H8zm6 11h2v-3h3v-2h-5zm2-11V5h-2v5h5V8z"/></svg>';
+    document.getElementById("thumb").src = "https://i.ytimg.com/vi/" + VIDEO + "/hqdefault.jpg";
 
     function clock(n) {
       n = Math.max(0, Math.floor(n || 0));
       return Math.floor(n / 60) + ":" + String(n % 60).padStart(2, "0");
+    }
+    function fsOn() {
+      return document.fullscreenElement === document.getElementById("shell");
     }
     function showChrome() {
       var c = document.getElementById("chrome");
       c.classList.remove("hide");
       clearTimeout(hideT);
       if (player && player.getPlayerState && player.getPlayerState() === 1) {
-        hideT = setTimeout(function () { c.classList.add("hide"); }, 2200);
+        hideT = setTimeout(function () { c.classList.add("hide"); }, 2500);
       }
+    }
+    function hideChrome() {
+      clearTimeout(hideT);
+      document.getElementById("chrome").classList.add("hide");
     }
     function burst(id) {
       var el = document.getElementById(id);
@@ -150,14 +159,22 @@
       clearTimeout(el._t);
       el._t = setTimeout(function () { el.classList.remove("on"); }, 550);
     }
-    function setVol(n) {
-      vol = Math.max(0, Math.min(100, Math.round(n)));
-      if (player) { player.setVolume(vol); vol ? player.unMute() : player.mute(); }
-      document.getElementById("volfill").style.height = vol + "%";
-      var box = document.getElementById("vol");
+    function meter(id, fill, n) {
+      document.getElementById(fill).style.height = n + "%";
+      var box = document.getElementById(id);
       box.classList.add("on");
       clearTimeout(box._t);
       box._t = setTimeout(function () { box.classList.remove("on"); }, 650);
+    }
+    function setVol(n) {
+      vol = Math.max(0, Math.min(100, Math.round(n)));
+      if (player) { player.setVolume(vol); vol ? player.unMute() : player.mute(); }
+      meter("vol", "volfill", vol);
+    }
+    function setBright(n) {
+      bright = Math.max(30, Math.min(160, Math.round(n)));
+      document.getElementById("stage").style.filter = "brightness(" + (bright / 100) + ")";
+      meter("brit", "britfill", Math.round(((bright - 30) / 130) * 100));
     }
     function paint() {
       if (!player || !player.getDuration) return;
@@ -167,9 +184,10 @@
       }
       document.getElementById("time").textContent = clock(t) + " / " + clock(d);
       document.getElementById("toggle").innerHTML = st === 1 ? pauseI : playI;
-      document.getElementById("curtain").classList.toggle("off", st === 1 || st === 3);
+      document.getElementById("curtain").classList.toggle("off", st === 1 || st === 3 || st === 0);
       document.getElementById("end").classList.toggle("off", st !== 0);
-      document.getElementById("full").innerHTML = document.getElementById("shell").classList.contains("fs") ? exitI : fullI;
+      document.getElementById("full").innerHTML = fsOn() ? exitI : fullI;
+      if (st === 0) hideChrome();
     }
     function boot() {
       player = new YT.Player("yt", {
@@ -192,7 +210,7 @@
           onStateChange: function (e) {
             paint();
             if (e.data === 1) showChrome();
-            if (e.data !== 1) document.getElementById("chrome").classList.remove("hide");
+            if (e.data === 2) document.getElementById("chrome").classList.remove("hide");
           }
         }
       });
@@ -216,7 +234,12 @@
     document.getElementById("toggle").innerHTML = playI;
     document.getElementById("full").innerHTML = fullI;
     document.getElementById("start").onclick = function (e) { e.stopPropagation(); ensure(); };
-    document.getElementById("replay").onclick = function () { player.seekTo(0, true); player.playVideo(); };
+    document.getElementById("end").onclick = function () {
+      document.getElementById("end").classList.add("off");
+      if (!player) return ensure();
+      player.seekTo(0, true);
+      player.playVideo();
+    };
     document.getElementById("toggle").onclick = function () {
       if (!player) return ensure();
       player.getPlayerState() === 1 ? player.pauseVideo() : player.playVideo();
@@ -235,29 +258,41 @@
       showChrome();
     };
     document.getElementById("full").onclick = function () {
-      document.getElementById("shell").classList.toggle("fs");
-      paint();
-      showChrome();
+      var el = document.getElementById("shell");
+      if (fsOn()) document.exitFullscreen();
+      else {
+        var go = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (go) go.call(el);
+      }
     };
+    document.addEventListener("fullscreenchange", paint);
     document.getElementById("hit").addEventListener("click", function (e) {
       var now = Date.now();
       var box = this.getBoundingClientRect();
       var left = e.clientX - box.left < box.width / 2;
-      if (now - lastTap < 280 && player) jump(left ? -10 : 10);
-      else showChrome();
+      if (now - lastTap < 280 && player) {
+        jump(left ? -10 : 10);
+        lastTap = 0;
+        return;
+      }
       lastTap = now;
+      var hidden = document.getElementById("chrome").classList.contains("hide");
+      hidden ? showChrome() : hideChrome();
     });
     var drag = null;
     document.getElementById("hit").addEventListener("touchstart", function (e) {
-      var t = e.changedTouches[0], box = this.getBoundingClientRect();
-      if (t.clientX - box.left > box.width * 0.7) drag = { y: t.clientY, vol: vol };
+      var t = e.changedTouches[0], box = this.getBoundingClientRect(), x = t.clientX - box.left;
+      if (x > box.width * 0.72) drag = { side: "v", y: t.clientY, vol: vol };
+      else if (x < box.width * 0.28) drag = { side: "b", y: t.clientY, bright: bright };
     }, { passive: true });
     document.getElementById("hit").addEventListener("touchmove", function (e) {
       if (!drag) return;
-      setVol(drag.vol + (drag.y - e.changedTouches[0].clientY) * 0.5);
+      var dy = drag.y - e.changedTouches[0].clientY;
+      if (drag.side === "v") setVol(drag.vol + dy * 0.5);
+      else setBright(drag.bright + dy * 0.45);
     }, { passive: true });
     document.getElementById("hit").addEventListener("touchend", function () { drag = null; });
-    document.getElementById("shell").addEventListener("mousemove", showChrome);
+    document.getElementById("britfill").style.height = "54%";
     document.getElementById("volfill").style.height = "100%";
   </script>
 </body>
