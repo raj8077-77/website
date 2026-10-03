@@ -237,16 +237,16 @@ $('play').innerHTML='<svg viewBox="0 0 24 24" width="16" height="16"><path fill=
 ICONS.look=ICONS.style;
 const ALL=[['script','Script'],['look','Look'],['style','Style'],['color','Colour'],['motion','Motion'],['shadow','Shadow'],['image','Image'],['layout','Layout'],['export','Export']];
 const SIMPLE=[['script','Script'],['look','Look'],['image','Image'],['export','Export']];
+let tab=null,tgt='c1',hsv=[0,0,0],recent=[];
 function paintTools(){const list=S.simple?SIMPLE:ALL;$('tools').innerHTML=list.map(([k,l])=>`<button data-tab="${k}"><span>${ICONS[k]}</span>${l}</button>`).join('');document.querySelectorAll('#tools button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab))}
 paintTools();
-let tab=null,tgt='c1',hsv=[0,0,0],recent=[];
 const chp=(k,o,c)=>o.map(([v,l])=>`<button class="chip${String(c)===String(v)?' on':''}" data-s="${k}" data-v="${v}">${l}</button>`).join('');
 const sl=(k,l,mn,mx,u='',st=1)=>`<label class="sl"><span>${l}<output>${S[k]}${u}</output></span><input type="range" data-r="${k}" min="${mn}" max="${mx}" step="${st}" value="${S[k]}"></label>`;
 const rw=(t,h)=>`<div class="rw"><h4>${t}</h4><div class="chips">${h}</div></div>`;
 const OF=[[1,'On'],[0,'Off']];
 const sws=a=>a.map(c=>`<i data-c="${c}" style="background:${c}" title="${c}"></i>`).join('');
 function openTab(k){tab=tab===k?null:k;sheet()}
-function sheet(){paintTools();$('sheet').hidden=!tab;if(!tab)return;$('stt').textContent=(TOOLS.find(x=>x[0]===tab)||[])[2];$('sb').innerHTML=PN[tab]();after()}
+function sheet(){paintTools();$('sheet').hidden=!tab;if(!tab)return;$('stt').textContent=(ALL.find(x=>x[0]===tab)||['',''])[1];$('sb').innerHTML=PN[tab]();after()}
 const COL={
 d3m0n:['d3m0n',['#14081f','#ffffff','#c4b0ea','#b47bff','#ffd23f','#000000','#000000']],
 gold:['Gold on black',['#0c0c0c','#fff8e8','#cbb98a','#e6c15a','#ffffff','#000000','#000000']],
@@ -266,6 +266,7 @@ const MOT={snap:['Snap',{an:'pop',ex:'fade',rv:.6}],rise:['Rise',{an:'slide',ex:
 function applyCol(k){const p=COL[k];if(!p)return;IDS.forEach((id,i)=>C[id]=p[1][i]);style()}
 const PN={
 look:()=>`<p class="hint">Simple mode hides extra tabs. Full controls brings them back. Nothing is removed.</p>`+
+`<div class="rw"><h4>Template</h4><div class="chips"><button class="chip" data-tpl="glow">Glow</button><button class="chip" data-tpl="hard">Hard cut</button><button class="chip" data-tpl="soft">Soft cut</button><button class="chip" data-tpl="news">News cut</button></div></div>`+
 `<div class="rw"><h4>Colour preset</h4><div class="chips">${Object.entries(COL).map(([k,p])=>`<button class="chip" data-col="${k}"><i class="swatch" style="background:${p[1][3]}"></i>${p[0]}</button>`).join('')}</div></div>`+
 rw('Motion pack',Object.entries(MOT).map(([k,p])=>`<button class="chip" data-mot="${k}">${p[0]}</button>`).join(''))+
 rw('Writing format',chp('wf',[['block','Block'],['punch','Punch line'],['stack','Stack'],['lower','Lower third']],S.wf))+
@@ -322,7 +323,7 @@ else if(d.a==='eye')new EyeDropper().open().then(r=>{setC(r.sRGBHex);pushRecent(
 else if(d.a==='ac'){tgt='c1';const w=lum('#ffffff')>0?cr('#ffffff',C.bg):0,k=cr('#000000',C.bg);C.c1=w>k?'#ffffff':'#000000';sheet();style()}
 else if(d.a==='addCut'||d.a==='addLine'){const c=cutAt(cur);if(!c)return;pend={si:c.si,ci:d.a==='addCut'?c.ci:-1};$('fi').click()}
 else if(d.a==='addLink'){const u=prompt('Image URL. Gallery upload is more reliable.');if(!u)return;const c=cutAt(cur);pend={si:c?c.si:0,ci:c?c.ci:-1};const im=new Image();im.crossOrigin='anonymous';im.onload=async()=>{try{addImg(await createImageBitmap(im),u.split('/').pop())}catch(x){msg('This link cannot be exported. Upload the image.')}};im.onerror=()=>msg('Link failed. Upload the image.');im.src=u}
-else if(d.col){applyCol(d.col);style()}else if(d.mot){Object.assign(S,MOT[d.mot][1]);sheet();style()}else if(d.a==='center'){S.nx=S.ny=0;style();sheet()}else if(d.a==='full'){S.simple=0;$('full').textContent='Simple';paintTools();openTab('style')}else if(d.a==='vid')$('fv').click();else if(d.a==='vidx'){if(vidUrl)URL.revokeObjectURL(vidUrl);vidUrl='';const v=$('vid');v.pause();v.removeAttribute('src');v.load();if(S.tr==='video')S.tr=0;style()}
+else if(d.tpl){const q={glow:['royal','still','glow'],hard:['punch','punch','hard'],soft:['cinema','rise','soft'],news:['news','mask','none']}[d.tpl];applyCol(q[0]);Object.assign(S,MOT[q[1]][1],SHP[q[2]]);sheet();style()}else if(d.col){applyCol(d.col);style()}else if(d.mot){Object.assign(S,MOT[d.mot][1]);sheet();style()}else if(d.a==='center'){S.nx=S.ny=0;style();sheet()}else if(d.a==='full'){S.simple=0;$('full').textContent='Simple';paintTools();openTab('style')}else if(d.a==='vid')$('fv').click();else if(d.a==='vidx'){if(vidUrl)URL.revokeObjectURL(vidUrl);vidUrl='';const v=$('vid');v.pause();v.removeAttribute('src');v.load();if(S.tr==='video')S.tr=0;style()}
 else if(d.a==='del'&&imgs[selI]){imgs.splice(selI,1);selI=imgs.length-1;sheet();struct()}});
 /* export */
 async function save(name,data){if(window.AndroidSaver&&typeof AndroidSaver.start==='function'){const buf=new Uint8Array(await data.arrayBuffer());AndroidSaver.start(name,data.type||'application/octet-stream',buf.length);const size=192*1024;for(let i=0;i<buf.length;i+=size){const slice=buf.subarray(i,Math.min(buf.length,i+size));let bin='';for(let j=0;j<slice.length;j+=0x8000)bin+=String.fromCharCode.apply(null,slice.subarray(j,Math.min(slice.length,j+0x8000)));AndroidSaver.append(btoa(bin));if(i%(size*4)===0){out('Saving '+Math.round(i/Math.max(1,buf.length)*100)+'%');await new Promise(r=>setTimeout(r,0))}}AndroidSaver.finish();return'Saved to Downloads'}
