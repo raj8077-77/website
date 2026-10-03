@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Caption Studio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@800&family=Instrument+Serif:ital@1&family=Bebas+Neue&family=Space+Grotesk:wght@700&family=Playfair+Display:ital,wght@1,700&display=swap">
+<style>
+:root{--page:#f6f4ee;--card:#fff;--line:#d8d5cc;--ink:#141414;--red:#b3001b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#121212;--card:#1c1c1c;--line:#333;--ink:#eee}}
+:root[data-theme="dark"]{--page:#121212;--card:#1c1c1c;--line:#333;--ink:#eee}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:"Inter Tight",system-ui,sans-serif;padding:14px;max-width:780px;margin-inline:auto}
+h1{font-size:24px;margin:6px 0}h2{font-size:15px;margin:16px 0 6px}
+p.h{font-size:13px;line-height:1.55;color:#807d75;margin:0 0 8px}
+code{background:var(--card);border:1px solid var(--line);padding:1px 5px;border-radius:5px}
+textarea,input[type=text]{width:100%;border:1px solid var(--line);background:var(--card);color:inherit;border-radius:10px;padding:9px;font:15px/1.45 system-ui,sans-serif}
+textarea{height:190px}
+.g,.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin:8px 0}
+label{font-size:12px;display:flex;flex-direction:column;gap:3px;color:#807d75}
+select{font:inherit;font-size:14px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:inherit;height:38px;width:100%}
+input[type=color]{width:44px;height:38px;padding:2px;border:1px solid var(--line);border-radius:8px;background:var(--card);flex:none}
+button{font:inherit;font-weight:800;border:0;border-radius:22px;padding:10px 18px;cursor:pointer;background:var(--ink);color:var(--page)}
+button.o{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+button:disabled{opacity:.5}
+button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.cf{border:1px solid var(--line);border-radius:10px;padding:7px;background:var(--card);cursor:pointer}
+.cf.on{outline:2px solid var(--red)}.cf b{font-size:12px;display:block;margin-bottom:4px}
+.r{display:flex;gap:6px}.r input[type=text]{padding:6px;font:14px monospace;border-radius:8px}.r button{padding:4px 10px;font-size:15px}
+#pal{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+#pal i{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);cursor:pointer;display:block}
+#pal em{width:100%;font-size:11px;color:#807d75;font-style:normal;margin-top:2px}
+.ic{display:flex;gap:10px;border:1px solid var(--line);border-radius:12px;padding:8px;margin:8px 0;background:var(--card)}
+.ic canvas{width:56px;height:56px;border-radius:8px;background:repeating-conic-gradient(#bbb 0 25%,#e6e6e6 0 50%) 0 0/10px 10px;flex:none}
+.ic .g2{flex:1;margin:0}
+#pv{display:block;margin:10px auto;max-width:100%;max-height:62vh;border:1px solid var(--line);border-radius:8px}
+#pv.t{background:repeating-conic-gradient(#bbb 0 25%,#e6e6e6 0 50%) 0 0/20px 20px}
+#st,#ct{font-size:13px;color:#807d75;min-height:1.3em}
+input[type=range]{flex:1;min-width:100px;width:100%}
+</style>
+</head>
+<body>
+<h1>Caption Studio</h1>
+<p class="h">टाइमस्टैम्प वाली स्क्रिप्ट पेस्ट करो। मार्कअप: <code>*शब्द*</code> सेरिफ़ एक्सेंट, <code>^शब्द^</code> विशाल बोल्ड, <code>_शब्द_</code> हाइलाइट। लाइन के अंत में <code>[♛]</code> <code>[2]</code> (रिंग) <code>[?]</code> आइकन। इमेज नीचे “Images” में अपलोड करो और लाइन चुनो।</p>
+<textarea id="src" aria-label="Script">* 00:00 - 00:09: "I gave my six-year-old his own *computer*, and then I left for a week, which is a problem because technically he could access the _entire internet_."
+* 00:09 - 00:19: "So while I'm on the road, I asked Theo to write the code for this kid friendly *launcher* that simplifies the UI. It keeps him off the internet, and instead, on specific apps that fuel his ^creativity^."
+* 00:19 - 00:23: "So, Theo's just one of my Grok bots that keeps me updated on the build progress and testing." [🤖]
+* 00:48 - 00:52: "So if you want to try Grok bot out for yourself, comment *bot*, and I'll send you a link." [?]</textarea>
+
+<h2>Style</h2>
+<div class="g">
+<label>Preset<select id="pr"><option value="cream">Reel Cream</option><option value="brand">d3m0n Purple</option><option value="purple">Neon Purple</option><option value="yellow">Creator Yellow (transparent)</option><option value="white">Clean White (transparent)</option><option value="dark">Dark Ink (transparent)</option><option value="mint">Mint Pop</option><option value="sunset">Sunset</option><option value="ocean">Ocean</option><option value="news">Newsprint</option></select></label>
+<label>Entrance animation<select id="an"><option value="blur">Blur in</option><option value="mask">Mask rise</option><option value="swipe">Swipe</option><option value="pop">Pop</option><option value="bounce">Bounce drop</option><option value="slide">Slide up</option><option value="zoom">Zoom in</option><option value="swing">Swing</option><option value="glitch">Glitch</option><option value="type">Typewriter</option><option value="fade">Fade</option><option value="kara">Karaoke</option><option value="box">Highlight box</option></select></label>
+<label>Exit<select id="ex"><option value="fade">Fade</option><option value="slide">Slide down</option><option value="shrink">Shrink</option><option value="blur">Blur out</option><option value="none">Hard cut</option></select></label>
+<label>Reveal speed<select id="rv"><option value=".6">Fast</option><option value=".86" selected>Normal</option><option value="1">Slow</option></select></label>
+<label>Alignment<select id="al"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option><option value="zig">Zigzag</option></select></label>
+<label>Text position<select id="po"><option value="c">Center</option><option value="t">Top</option><option value="b">Bottom</option></select></label>
+<label>Aspect<select id="as"><option value="9:16">9:16 Reel</option><option value="16:9">16:9</option><option value="1:1">1:1</option></select></label>
+<label>Words per block<select id="wc"><option>4</option><option>6</option><option selected>8</option><option>10</option></select></label>
+<label>Auto keyword<select id="ak"><option value="1">On</option><option value="0">Off</option></select></label>
+<label>Small grey line<select id="gy"><option value="1">On</option><option value="0">Off</option></select></label>
+<label>Main font<select id="fm"><option value="inter">Inter Tight</option><option value="bebas">Bebas Neue</option><option value="space">Space Grotesk</option></select></label>
+<label>Accent font<select id="fa"><option value="instr">Instrument Serif</option><option value="play">Playfair Italic</option><option value="same">Same as main</option></select></label>
+<label>Colour mode<select id="cm"><option value="n">Normal</option><option value="alt">Alternate lines</option><option value="rainbow">Rainbow words</option></select></label>
+<label>Outline<select id="ol"><option value="0">None</option><option value="b">Black</option><option value="w">White</option></select></label>
+<label>Shadow<select id="sh"><option value="0">None</option><option value="soft">Soft</option><option value="hard">Hard</option></select></label>
+<label>Background<select id="tr"><option value="0">Solid colour</option><option value="1">Transparent</option></select></label>
+</div>
+
+<h2>Colours</h2>
+<p class="h">किसी बॉक्स पर टैप करो (लाल बॉर्डर = सक्रिय), फिर नीचे के पैलेट से रंग लगाओ। exact रंग के लिए HEX लिखो, या 💧 से स्क्रीन पर कहीं से भी रंग उठाओ (Chrome/Edge)। इमेज अपलोड करोगे तो उसका पैलेट अपने आप जुड़ जाएगा।</p>
+<div class="g" id="cols"></div>
+<div id="pal"></div>
+<div id="ct"></div>
+
+<h2>Images</h2>
+<p class="h">PNG/JPG अपलोड करो, फिर लाइन, जगह और साइज़ चुनो। “Below/Above/Left/Right” में टेक्स्ट अपने आप बाकी जगह में फिट होता है, इसलिए इमेज टेक्स्ट पर नहीं चढ़ेगी। “Custom” में X/Y से कहीं भी रखो, “Background” में पीछे धुँधली लगती है।</p>
+<div class="row"><button id="addI">＋ Gallery se image</button><input type="file" id="fi" accept="image/*" multiple hidden><input type="text" id="lk" placeholder="या image link (https://…png)" style="flex:1;min-width:160px"><button class="o" id="addL">Link add</button></div>
+<div id="imgs"></div>
+
+<div class="row"><button id="play">▶ Play</button><input type="range" id="sc" min="0" max="1000" value="0" aria-label="Timeline" style="flex:1"><span id="tm">0.0s</span></div>
+<canvas id="pv"></canvas>
+<div class="g"><label>Export size<select id="rs"><option value="1">1080p</option><option value="2">4K</option></select></label><label>FPS<select id="fp"><option>30</option><option>60</option></select></label></div>
+<div class="row"><button id="exW">⬇ WebM video</button><button class="o" id="exP">⬇ PNG frames (ZIP, 100% alpha)</button></div>
+<div id="st"></div>
+<script>
+const $=id=>document.getElementById(id);
+const FM={inter:['800','"Inter Tight","Noto Sans Devanagari","Mukta",system-ui,sans-serif'],bebas:['400','"Bebas Neue","Noto Sans Devanagari",Impact,sans-serif'],space:['700','"Space Grotesk","Noto Sans Devanagari",system-ui,sans-serif']};
+const FA={instr:['italic 400','"Instrument Serif","Noto Serif Devanagari",Georgia,serif'],play:['italic 700','"Playfair Display","Noto Serif Devanagari",Georgia,serif']};
+const FL={inter:'800 40px "Inter Tight"',bebas:'400 40px "Bebas Neue"',space:'700 40px "Space Grotesk"',instr:'italic 400 40px "Instrument Serif"',play:'italic 700 40px "Playfair Display"'};
+function fnt(k,f){const a=FA[$('fa').value];if(k==='s'&&a)return a[0]+' '+f+'px '+a[1];const m=FM[$('fm').value];return m[0]+' '+f+'px '+m[1]}
+/* colour helpers */
+const h2r=h=>{h=h.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');return[0,2,4].map(i=>parseInt(h.substr(i,2),16))};
+const r2h=(r,g,b)=>'#'+[r,g,b].map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('');
+function hsl2hex(h,s,l){h=((h%360)+360)%360/360;const f=n=>{const k=(n+h*12)%12,a=s*Math.min(l,1-l);return l-a*Math.max(-1,Math.min(k-3,9-k,1))};return r2h(f(0)*255,f(8)*255,f(4)*255)}
+function hex2hsl(hex){let[r,g,b]=h2r(hex).map(v=>v/255);const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let h=0,s=0;if(mx!==mn){const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h*=60}return[h,s,l]}
+const lum=hex=>{const[r,g,b]=h2r(hex).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b};
+const cr=(a,b)=>{const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+const norm=v=>{v=(v||'').trim();if(v[0]!=='#')v='#'+v;if(/^#[0-9a-f]{3}$/i.test(v))v='#'+v.slice(1).split('').map(c=>c+c).join('');return/^#[0-9a-f]{6}$/i.test(v)?v.toLowerCase():null};
+const PRE={cream:{bg:'#f1efe9',c1:'#141414',cg:'#9a9892',cs:'#b3001b',cc:'#b3001b',tr:0,an:'blur',al:'left',ol:'0',sh:'0',fm:'inter',fa:'instr'},
+brand:{bg:'#1a0933',c1:'#ffffff',cg:'#a58be0',cs:'#b47bff',cc:'#ffd23f',tr:0,an:'mask',al:'left',ol:'0',sh:'0',fm:'inter',fa:'instr'},
+purple:{bg:'#120a24',c1:'#f3ecff',cg:'#8b7bb0',cs:'#c9a6ff',cc:'#ffd23f',tr:0,an:'swipe',al:'left',ol:'0',sh:'0',fm:'space',fa:'instr'},
+yellow:{bg:'#000000',c1:'#ffffff',cg:'#d9d9d9',cs:'#ffd23f',cc:'#ff4d6d',tr:1,an:'pop',al:'center',ol:'b',sh:'hard',fm:'inter',fa:'same'},
+white:{bg:'#000000',c1:'#ffffff',cg:'#e0e0e0',cs:'#ffffff',cc:'#ffd23f',tr:1,an:'blur',al:'center',ol:'b',sh:'soft',fm:'inter',fa:'instr'},
+dark:{bg:'#ffffff',c1:'#111111',cg:'#555555',cs:'#d90429',cc:'#ffd23f',tr:1,an:'slide',al:'center',ol:'w',sh:'0',fm:'inter',fa:'instr'},
+mint:{bg:'#0b1f1a',c1:'#eafff7',cg:'#6aa595',cs:'#3dffa6',cc:'#ffd23f',tr:0,an:'bounce',al:'zig',ol:'0',sh:'0',fm:'space',fa:'play'},
+sunset:{bg:'#1a0b12',c1:'#fff1e6',cg:'#b08a8a',cs:'#ff7a45',cc:'#ffd166',tr:0,an:'zoom',al:'center',ol:'0',sh:'0',fm:'bebas',fa:'play'},
+ocean:{bg:'#06131f',c1:'#e8f6ff',cg:'#6e9bb5',cs:'#4cc9f0',cc:'#ffd166',tr:0,an:'glitch',al:'left',ol:'0',sh:'0',fm:'space',fa:'instr'},
+news:{bg:'#ffffff',c1:'#111111',cg:'#888888',cs:'#d90429',cc:'#111111',tr:0,an:'box',al:'left',ol:'0',sh:'0',fm:'inter',fa:'play'}};
+const CF=[['c1','Main text'],['cg','Small line'],['cs','Accent (serif)'],['cc','Highlight'],['bg','Background']];
+const SW=['#ffffff','#f1efe9','#141414','#000000','#b3001b','#ff3b30','#ff7a45','#ffd23f','#3dffa6','#00c2a8','#4cc9f0','#3a86ff','#8b3dff','#c9a6ff','#ff4d9d','#9a9892','#d9d9d9','#120a24','#0b1f1a','#06131f'];
+$('cols').innerHTML=CF.map(([id,l])=>`<div class="cf" data-id="${id}"><b>${l}</b><div class="r"><input type="color" id="${id}"><input type="text" id="h_${id}" maxlength="7" spellcheck="false" aria-label="${l} hex"><button class="o" data-e="${id}" title="Screen se colour uthao" hidden>💧</button></div></div>`).join('');
+let act='cs',rev=0,segs=[],total=0,imgs=[],lastN=-1;
+const setAct=id=>{act=id;document.querySelectorAll('.cf').forEach(e=>e.classList.toggle('on',e.dataset.id===id))};
+function setCol(id,v,silent){v=norm(v);if(!v)return;$(id).value=v;$('h_'+id).value=v;if(!silent){renderPal();touch()}}
+function renderPal(){const[h,s,l]=hex2hsl($('cs').value);const harm=[h+30,h-30,h+150,h+180,h+210].map(x=>hsl2hex(x,s,l));
+let ip=[];imgs.forEach(m=>(m.pal||[]).forEach(c=>{if(!ip.includes(c))ip.push(c)}));
+const sw=(a,t)=>a.length?`<em>${t}</em>`+a.map(c=>`<i style="background:${c}" data-c="${c}" title="${c}"></i>`).join(''):'';
+$('pal').innerHTML=sw(SW,'Palette')+sw(harm,'Accent se matching')+sw(ip.slice(0,12),'Image se')}
+function updCt(){const b=$('tr').value==='1'?null:$('bg').value;$('ct').textContent=b?(()=>{const a=cr($('c1').value,b),c=cr($('cs').value,b);return`Main vs BG ${a.toFixed(1)}:1 ${a>=4.5?'✔':a>=3?'⚠ thoda kamzor':'✖ padhna mushkil'} · Accent vs BG ${c.toFixed(1)}:1 ${c>=3?'✔':'✖ kamzor'}`})():'Transparent mode: padhne layak banane ke liye Outline ya Shadow lagao.'}
+$('cols').addEventListener('click',e=>{const c=e.target.closest('.cf');if(c)setAct(c.dataset.id);const b=e.target.closest('[data-e]');if(b)new EyeDropper().open().then(r=>setCol(b.dataset.e,r.sRGBHex)).catch(()=>{})});
+$('cols').addEventListener('input',e=>{const id=e.target.id;if(e.target.type==='color')setCol(id,e.target.value);else if(id.startsWith('h_')&&/^#?[0-9a-f]{6}$/i.test(e.target.value.trim()))setCol(id.slice(2),e.target.value)});
+$('pal').addEventListener('click',e=>{if(e.target.dataset.c)setCol(act,e.target.dataset.c)});
+if(window.EyeDropper)document.querySelectorAll('[data-e]').forEach(b=>b.hidden=false);
+function applyPre(){const p=PRE[$('pr').value];['an','al','ol','sh','fm','fa'].forEach(k=>$(k).value=p[k]);$('tr').value=p.tr;CF.forEach(([id])=>setCol(id,p[id],true));renderPal();loadFonts()}
+function loadFonts(){return Promise.all([FL[$('fm').value],FL[$('fa').value]].filter(Boolean).map(f=>document.fonts.load(f))).then(touch,touch)}
+/* parse */
+function tok(w){let m;if(m=w.match(/^\*(.+)\*(\W*)$/))return{t:m[1]+m[2],m:'s'};if(m=w.match(/^\^(.+)\^(\W*)$/))return{t:m[1]+m[2],m:'k'};if(m=w.match(/^_(.+)_(\W*)$/))return{t:m[1]+m[2],m:'c'};return{t:w.replace(/[*^_]/g,''),m:''}}
+function parse(){segs=[];const N=+$('wc').value;$('src').value.split('\n').forEach(l=>{const m=l.match(/(\d+):(\d{2})(?::(\d{2}))?\s*[-–—]+\s*(\d+):(\d{2})(?::(\d{2}))?\s*[:\-]?\s*(.*)$/);if(!m)return;
+const a=m[3]?+m[1]*3600+ +m[2]*60+ +m[3]:+m[1]*60+ +m[2],b=m[6]?+m[4]*3600+ +m[5]*60+ +m[6]:+m[4]*60+ +m[5];
+let t=m[7].trim().replace(/^\*\s*/,'');const im=t.match(/\[([^\]]+)\]\s*$/);const icon=im?im[1].trim():'';t=t.replace(/\[([^\]]+)\]\s*$/,'').trim().replace(/^["“”]+|["“”]+$/g,'');if(!t||b<=a)return;
+const w=t.split(/\s+/).map(tok),n=Math.ceil(w.length/N),per=Math.ceil(w.length/n),L=w.reduce((s,x)=>s+x.t.length,0),si=segs.length;let c=0;const ch=[];
+for(let i=0;i<w.length;i+=per){const ws=w.slice(i,i+per),cl=ws.reduce((s,x)=>s+x.t.length,0),s=a+(b-a)*c/L;c+=cl;ch.push({s,e:a+(b-a)*c/L,tok:ws,icon:'',si})}
+if(icon)ch[ch.length-1].icon=icon;
+ch.forEach(k=>{if($('ak').value==='1'&&!k.tok.some(x=>x.m)&&k.tok.length>2){let bi=-1,bl=4;k.tok.forEach((x,i)=>{const l=x.t.replace(/[^\p{L}\p{N}]/gu,'').length;if(i>0&&l>bl){bl=l;bi=i}});if(bi>-1)k.tok[bi].m='s'}});
+segs.push({s:a,e:b,ch})});total=segs.length?Math.max(...segs.map(s=>s.e)):0;if(segs.length!==lastN){lastN=segs.length;renderImgs()}}
+/* images */
+function palette(bmp){try{const c=document.createElement('canvas');c.width=c.height=40;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(bmp,0,0,40,40);const d=x.getImageData(0,0,40,40).data,B={};
+for(let i=0;i<d.length;i+=4){if(d[i+3]<128)continue;const k=(d[i]>>5)+','+(d[i+1]>>5)+','+(d[i+2]>>5),b=B[k]=B[k]||[0,0,0,0];b[0]+=d[i];b[1]+=d[i+1];b[2]+=d[i+2];b[3]++}
+const L=Object.values(B).sort((a,b)=>b[3]-a[3]).map(b=>r2h(b[0]/b[3],b[1]/b[3],b[2]/b[3])),o=[];
+for(const h of L){const a=h2r(h);if(o.every(p=>{const q=h2r(p);return Math.abs(a[0]-q[0])+Math.abs(a[1]-q[1])+Math.abs(a[2]-q[2])>90}))o.push(h);if(o.length>=6)break}return o}catch(e){return[]}}
+function addImg(bmp,name){imgs.push({name,bmp,w:bmp.width,h:bmp.height,line:Math.min(imgs.length+1,Math.max(1,segs.length)),size:45,place:'below',anim:'pop',rad:6,op:100,cx:50,cy:50,pal:palette(bmp)});renderImgs();renderPal();touch()}
+$('addI').onclick=()=>$('fi').click();
+$('fi').onchange=async e=>{for(const f of e.target.files){try{addImg(await createImageBitmap(f),f.name)}catch(x){$('st').textContent='Image nahi khuli: '+f.name}}e.target.value=''};
+$('addL').onclick=()=>{const u=$('lk').value.trim();if(!u)return;const im=new Image();im.crossOrigin='anonymous';im.onload=async()=>{try{addImg(await createImageBitmap(im),u.split('/').pop());$('lk').value=''}catch(x){$('st').textContent='Link ki image export ke liye safe nahi hai. Gallery se upload karo.'}};
+im.onerror=()=>{$('st').textContent='Link load nahi hua. Hosted page mein bahari links block hote hain, isliye gallery se upload karo (local file mein link chalega).'};im.src=u};
+const PL=[['below','Below text'],['above','Above text'],['left','Left of text'],['right','Right of text'],['custom','Custom X/Y'],['back','Background (dim)']],AN=[['pop','Pop'],['fade','Fade'],['slide','Slide in'],['zoom','Zoom out'],['spin','Spin in'],['none','None']];
+const opt=(a,v)=>a.map(([k,l])=>`<option value="${k}"${k===v?' selected':''}>${l}</option>`).join('');
+const rg=(k,l,v,mn,mx)=>`<label>${l} <output>${v}</output><input type="range" data-k="${k}" min="${mn}" max="${mx}" value="${v}"></label>`;
+function renderImgs(){$('imgs').innerHTML=imgs.map((m,i)=>`<div class="ic" data-i="${i}"><canvas width="56" height="56" data-t="${i}"></canvas><div class="g2">
+<label>Line<select data-k="line">${segs.map((_,j)=>`<option value="${j+1}"${m.line===j+1?' selected':''}>Line ${j+1}</option>`).join('')||'<option>-</option>'}</select></label>
+<label>Placement<select data-k="place">${opt(PL,m.place)}</select></label><label>Animation<select data-k="anim">${opt(AN,m.anim)}</select></label>
+${rg('size','Size %',m.size,5,100)}${rg('rad','Corner %',m.rad,0,50)}${rg('op','Opacity %',m.op,10,100)}${rg('cx','X % (custom)',m.cx,0,100)}${rg('cy','Y % (custom)',m.cy,0,100)}
+<button class="o" data-del="${i}">✕ Remove</button></div></div>`).join('');
+imgs.forEach((m,i)=>{const c=document.querySelector(`canvas[data-t="${i}"]`),x=c.getContext('2d'),s=Math.min(56/m.w,56/m.h);x.drawImage(m.bmp,(56-m.w*s)/2,(56-m.h*s)/2,m.w*s,m.h*s)})}
+$('imgs').addEventListener('input',e=>{const card=e.target.closest('.ic');if(!card||!e.target.dataset.k)return;const m=imgs[+card.dataset.i],k=e.target.dataset.k;m[k]=['place','anim'].includes(k)?e.target.value:+e.target.value;const o=e.target.parentNode.querySelector('output');if(o)o.textContent=e.target.value;touch()});
+$('imgs').addEventListener('click',e=>{const d=e.target.dataset.del;if(d===undefined)return;imgs.splice(+d,1);renderImgs();renderPal();touch()});
+function frame(W,H,si){const pad=W*.08,T0=H*.05,T1=H*.95,F={x0:pad,x1:W-pad,A0:T0,A1:T1,res:null},m=imgs.find(q=>q.line===si+1&&q.place!=='custom'&&q.place!=='back');if(!m)return F;
+let iw=W*m.size/100,ih=iw*m.h/m.w;const g=W*.04,v=m.place==='above'||m.place==='below';
+if(v){const mh=(T1-T0)*.55;if(ih>mh){ih=mh;iw=ih*m.w/m.h}}else{if(iw>W*.42){iw=W*.42;ih=iw*m.h/m.w}const mh=(T1-T0)*.8;if(ih>mh){ih=mh;iw=ih*m.w/m.h}}
+const al=$('al').value,hx=al==='left'?pad:al==='right'?W-pad-iw:(W-iw)/2;
+if(m.place==='below'){F.res={m,x:hx,y:T1-ih,w:iw,h:ih};F.A1=T1-ih-g}else if(m.place==='above'){F.res={m,x:hx,y:T0,w:iw,h:ih};F.A0=T0+ih+g}
+else if(m.place==='left'){F.res={m,x:pad,y:(H-ih)/2,w:iw,h:ih};F.x0=pad+iw+g}else{F.res={m,x:W-pad-iw,y:(H-ih)/2,w:iw,h:ih};F.x1=W-pad-iw-g}return F}
+const ez=p=>1-Math.pow(1-p,3),eb=p=>{const c=1.9;return 1+(c+1)*Math.pow(p-1,3)+c*Math.pow(p-1,2)};
+const eob=x=>{const n=7.5625,d=2.75;if(x<1/d)return n*x*x;if(x<2/d)return n*(x-=1.5/d)*x+.75;if(x<2.5/d)return n*(x-=2.25/d)*x+.9375;return n*(x-=2.625/d)*x+.984375};
+const cl01=x=>Math.max(0,Math.min(1,x));
+function dImg(ctx,m,b,W,H,t,seg){const p=cl01((t-seg.s)/.55),q=cl01((t-(seg.e-.2))/.2),k=m.anim;let a=m.op/100*(1-q),s=1,r=0,dx=0,dy=0;
+if(k==='pop'){s=eb(p);a*=Math.min(1,p*3)}else if(k==='fade')a*=p;else if(k==='zoom'){s=1.25-.25*ez(p);a*=p}else if(k==='spin'){s=eb(p);r=-(1-ez(p))*.5;a*=Math.min(1,p*3)}
+else if(k==='slide'){a*=p;const o=1-ez(p);if(m.place==='left')dx=-W*.2*o;else if(m.place==='right')dx=W*.2*o;else if(m.place==='above')dy=-H*.1*o;else dy=H*.1*o}
+if(b.back)a*=.35;if(a<=.001||s<=0)return;ctx.save();ctx.globalAlpha=Math.min(1,a);ctx.translate(b.x+b.w/2+dx,b.y+b.h/2+dy);ctx.rotate(r);ctx.scale(s,s);
+if(!b.back&&m.rad>0){ctx.beginPath();ctx.roundRect(-b.w/2,-b.h/2,b.w,b.h,Math.min(b.w,b.h)*m.rad/100);ctx.clip()}ctx.drawImage(m.bmp,-b.w/2,-b.h/2,b.w,b.h);ctx.restore()}
+function dImgs(ctx,W,H,t,si,seg){const F=frame(W,H,si);imgs.filter(m=>m.line===si+1).forEach(m=>{let b;
+if(F.res&&F.res.m===m)b=F.res;else if(m.place==='back'){const s=Math.max(W/m.w,H/m.h),w=m.w*s,h=m.h*s;b={x:(W-w)/2,y:(H-h)/2,w,h,back:true}}
+else{let w=W*m.size/100,h=w*m.h/m.w;if(h>H*.5){h=H*.5;w=h*m.w/m.h}b={x:W*m.cx/100-w/2,y:H*m.cy/100-h/2,w,h}}dImg(ctx,m,b,W,H,t,seg)})}
+/* text layout */
+const FZ={g:.5,m:1,s:1.5,k:1.7};
+function layout(ctx,ch,W,H){const key=[W,H,rev].join();if(ch._k===key)return ch._L;
+const F=frame(W,H,ch.si),base=Math.min(W,H)*(W>H?.11:.105),maxW=F.x1-F.x0,al=$('al').value;let toks=ch.tok.slice(),lines=[],buf=[];
+if(toks.length>=5&&$('gy').value==='1')lines.push({kind:'g',tk:toks.splice(0,2)});
+const fl=()=>{if(buf.length)lines.push({kind:'m',tk:buf});buf=[]};
+toks.forEach(k=>{if(k.m==='s'||k.m==='k'){fl();lines.push({kind:k.m,tk:[k]})}else{buf.push(k);if(buf.length>=2)fl()}});fl();
+let y=0,acc=0,wi=0;const C=ch.tok.reduce((s,x)=>s+x.t.length,0),words=[];
+lines.forEach((ln,li)=>{let f=base*FZ[ln.kind];ctx.font=fnt(ln.kind,f);let sp=ctx.measureText(' ').width,w=ln.tk.reduce((s,k)=>s+ctx.measureText(k.t).width,0)+sp*(ln.tk.length-1);
+if(w>maxW){f*=maxW/w;ctx.font=fnt(ln.kind,f);sp=ctx.measureText(' ').width;w=maxW}ln.f=f;ln.w=w;ln.lh=f*1.06;ln.top=y;y+=ln.lh+base*.1;
+let x=al==='left'?F.x0:al==='right'?F.x1-w:al==='zig'?(li%2?F.x1-w:F.x0):F.x0+(maxW-w)/2;
+ln.tk.forEach(k=>{const ww=ctx.measureText(k.t).width;words.push({t:k.t,x,w:ww,f,kind:ln.kind,col:ln.kind==='m'?(k.m==='c'?'cc':'c1'):ln.kind==='g'?'cg':'cs',li,wi:wi++,a0:acc/C,a1:(acc+k.t.length)/C});acc+=k.t.length;x+=ww+sp})});
+const bh=y-base*.1,p=$('po').value;let top=p==='c'?(F.A0+F.A1)/2-bh/2:p==='t'?F.A0+H*.03:F.A1-bh-H*.03;if(top<F.A0)top=F.A0;
+words.forEach(w=>{const ln=lines[w.li];w.y=top+ln.top+ln.lh*.82});ch._k=key;return ch._L={words,top,bh,base,H,F}}
+function dIcon(ctx,ic,W,L,t,ch){const p=cl01((t-ch.s-.3)/.6);if(p<=0)return;const sz=L.base*1.7,cx=$('al').value==='left'?L.F.x0+sz/2:W/2,cy=Math.min(L.H-sz*.7,L.top+L.bh+sz*.85);
+ctx.save();ctx.globalAlpha=Math.min(1,p*3)*cl01((ch.e-t)/.15);ctx.translate(cx,cy);const s=eb(p);ctx.scale(s,s);ctx.textAlign='center';
+if(/^\d+$/.test(ic)){ctx.lineWidth=sz*.06;ctx.strokeStyle=$('cg').value;ctx.beginPath();ctx.arc(0,0,sz*.5,0,7);ctx.stroke();ctx.strokeStyle=$('c1').value;ctx.lineCap='round';ctx.beginPath();ctx.arc(0,0,sz*.5,-Math.PI/2,-Math.PI/2+Math.PI*2*ez(Math.min(1,p*1.3)));ctx.stroke();ctx.fillStyle=$('c1').value;ctx.font=fnt('m',sz*.5);ctx.fillText(ic,0,sz*.18)}
+else if(ic==='?'){ctx.fillStyle=$('cs').value;ctx.beginPath();ctx.arc(0,0,sz*.5,0,7);ctx.fill();ctx.fillStyle=lum($('cs').value)>.45?'#111':'#fff';ctx.font=fnt('s',sz*.75);ctx.fillText('?',0,sz*.22)}
+else{ctx.font=`${sz*.9}px ${FM.inter[1]}`;ctx.fillText(ic,0,sz*.3)}ctx.restore()}
+function draw(ctx,W,H,t){ctx.clearRect(0,0,W,H);if($('tr').value!=='1'){ctx.fillStyle=$('bg').value;ctx.fillRect(0,0,W,H)}
+const si=segs.findIndex(g=>t>=g.s&&t<g.e);if(si<0)return;const seg=segs[si];dImgs(ctx,W,H,t,si,seg);const ch=seg.ch.find(c=>t>=c.s&&t<c.e);if(!ch)return;
+const L=layout(ctx,ch,W,H),an=$('an').value,ex=$('ex').value,R=+$('rv').value,cm=$('cm').value,ol=$('ol').value,sh=$('sh').value,d=ch.e-ch.s,dq=d>.5?cl01((t-(ch.e-.2))/.2):0;ctx.lineJoin='round';
+L.words.forEach(w=>{const ws=ch.s+d*R*w.a0,we=ch.s+d*R*w.a1,tp=cl01((t-ws)/.3),cur=t>=ws&&t<we+.05;let a=1,sx=1,dx=0,dy=0,bl=0,rot=0,txt=w.t,clip=false,col=$(w.col).value;
+if(cm==='alt'&&w.kind==='m')col=$(w.li%2?'cc':'c1').value;else if(cm==='rainbow'&&w.kind!=='g')col=hsl2hex(w.wi*47,.85,.62);
+if(an==='blur'){a=tp;bl=(1-tp)*w.f*.25;dy=(1-tp)*w.f*.2}else if(an==='pop'){a=t<ws?0:1;sx=t<ws?0:eb(tp)}
+else if(an==='slide'){a=ez(tp);dy=(1-ez(tp))*w.f*.9}else if(an==='fade')a=tp;
+else if(an==='mask'){clip=true;dy=(1-ez(tp))*w.f*1.1}else if(an==='swipe'){clip=true;dx=-(1-ez(tp))*w.w*1.15}
+else if(an==='zoom'){a=tp;sx=1+(1-ez(tp))*.7;bl=(1-tp)*w.f*.2}else if(an==='bounce'){a=t<ws?0:cl01(tp*5);dy=-(1-eob(tp))*w.f*1.3}
+else if(an==='swing'){a=cl01(tp*3);rot=-(1-ez(tp))*.4;sx=t<ws?0:Math.max(.01,eb(tp))}else if(an==='glitch'){a=t<ws?0:1;dx=tp<1?Math.sin(t*90+w.x)*w.f*.06*(1-tp):0}
+else if(an==='type'){a=t<ws?0:1;txt=txt.slice(0,Math.ceil(cl01((t-ws)/Math.max(.05,we-ws))*txt.length))}else if(an==='kara'){a=t<ws?.25:1;if(cur&&w.kind==='m')col=$('cs').value}
+if(ex==='fade')a*=1-dq;else if(ex==='slide'){a*=1-dq;dy+=dq*w.f*.5}else if(ex==='shrink'){a*=1-dq;sx*=1-dq*.3}else if(ex==='blur'){a*=1-dq;bl+=dq*w.f*.25}
+if(a<=.001||!txt||sx<=0)return;ctx.save();
+if(an==='box'&&cur&&w.kind==='m'){ctx.globalAlpha=Math.min(1,a);ctx.fillStyle=$('cc').value;const p=w.f*.14;ctx.beginPath();ctx.roundRect(w.x-p,w.y-w.f*.86,w.w+p*2,w.f*1.1,w.f*.2);ctx.fill();col=lum($('cc').value)>.45?'#111':'#fff'}
+if(clip){ctx.beginPath();ctx.rect(w.x-w.f*.15,w.y-w.f*.95,w.w+w.f*.3,w.f*1.3);ctx.clip()}
+ctx.globalAlpha=Math.min(1,a);ctx.filter=bl>.3?`blur(${bl}px)`:'none';ctx.translate(w.x+w.w/2+dx,w.y+dy);if(rot)ctx.rotate(rot);ctx.scale(sx,sx);ctx.font=fnt(w.kind,w.f);ctx.textAlign='left';const ox=-w.w/2;
+if(an==='glitch'&&tp<1&&t>=ws)[['#ff2d95',1],['#00e5ff',-1]].forEach(([c,s])=>{ctx.save();ctx.globalAlpha*=.7;ctx.fillStyle=c;ctx.fillText(txt,ox+s*w.f*.08*(1-tp),0);ctx.restore()});
+if(ol!=='0'){ctx.strokeStyle=ol==='b'?'#000':'#fff';ctx.lineWidth=w.f*.14;ctx.strokeText(txt,ox,0)}
+if(sh==='soft'){ctx.shadowColor='rgba(0,0,0,.55)';ctx.shadowBlur=w.f*.18}else if(sh==='hard'){ctx.shadowColor='#000';ctx.shadowOffsetX=ctx.shadowOffsetY=w.f*.06}
+ctx.fillStyle=col;ctx.fillText(txt,ox,0);ctx.restore()});
+if(ch.icon&&!L.F.res)dIcon(ctx,ch.icon,W,L,t,ch)}
+/* player */
+function dims(sc){const a=$('as').value;const[w,h]=a==='9:16'?[1080,1920]:a==='16:9'?[1920,1080]:[1080,1080];return[w*sc,h*sc]}
+const pv=$('pv'),pc=pv.getContext('2d');let cur=0,playing=false,t0=0;
+function setPv(){[pv.width,pv.height]=dims(.5);pv.className=$('tr').value==='1'?'t':'';redraw()}
+function redraw(){draw(pc,pv.width,pv.height,cur);$('tm').textContent=cur.toFixed(1)+'s / '+total.toFixed(0)+'s';$('sc').value=total?cur/total*1000:0}
+function touch(){rev++;parse();setPv();updCt()}
+function loop(n){if(!playing)return;cur=(n-t0)/1000;if(cur>=total){cur=total;playing=false;$('play').textContent='▶ Play'}redraw();requestAnimationFrame(loop)}
+$('play').onclick=()=>{parse();if(!total)return $('st').textContent='Timestamp wali line nahi mili. Format: 00:00 - 00:09: text';if(playing){playing=false;$('play').textContent='▶ Play';return}
+if(cur>=total)cur=0;playing=true;t0=performance.now()-cur*1000;$('play').textContent='❚❚ Pause';requestAnimationFrame(loop)};
+$('sc').oninput=e=>{parse();cur=e.target.value/1000*total;playing=false;$('play').textContent='▶ Play';redraw()};
+$('pr').addEventListener('input',applyPre);
+['an','ex','rv','al','po','as','wc','ak','gy','cm','ol','sh','tr','src'].forEach(i=>$(i).addEventListener('input',touch));
+['fm','fa'].forEach(i=>$(i).addEventListener('input',loadFonts));
+/* export */
+async function save(name,data){try{const d=await claude.use('downloads');if(!d){$('st').textContent='Is view mein download available nahi hai.';return}await d.save({filename:name,data});$('st').textContent='Saved ✔'}catch(e){$('st').textContent='Download: '+(e.code||e.message)}}
+$('exW').onclick=async()=>{parse();if(!total)return;const[W,H]=dims(+$('rs').value),fps=+$('fp').value,cv=document.createElement('canvas');cv.width=W;cv.height=H;const cx=cv.getContext('2d');
+const mt=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));if(!mt)return $('st').textContent='Is browser mein WebM recording support nahi hai. PNG ZIP use karo.';
+const rec=new MediaRecorder(cv.captureStream(fps),{mimeType:mt,videoBitsPerSecond:W*H>3e6?60e6:25e6}),parts=[];rec.ondataavailable=e=>parts.push(e.data);
+const done=new Promise(r=>rec.onstop=r);rec.start();const s=performance.now();$('exW').disabled=true;
+await new Promise(res=>{const f=n=>{const t=(n-s)/1000;draw(cx,W,H,Math.min(t,total));$('st').textContent='Recording '+t.toFixed(1)+'s / '+total.toFixed(0)+'s (tab khula rakho)';if(t<total+.2)requestAnimationFrame(f);else res()};requestAnimationFrame(f)});
+rec.stop();await done;$('exW').disabled=false;await save('captions.webm',new Blob(parts,{type:'video/webm'}))};
+const crcT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc=u=>{let c=~0;for(let i=0;i<u.length;i++)c=crcT[(c^u[i])&255]^(c>>>8);return~c>>>0};
+function zip(files){const enc=new TextEncoder(),P=[],C=[];let off=0;files.forEach(f=>{const nm=enc.encode(f.n),cr=crc(f.d),h=new DataView(new ArrayBuffer(30));
+h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint32(14,cr,true);h.setUint32(18,f.d.length,true);h.setUint32(22,f.d.length,true);h.setUint16(26,nm.length,true);P.push(h.buffer,nm,f.d);
+const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint32(16,cr,true);c.setUint32(20,f.d.length,true);c.setUint32(24,f.d.length,true);c.setUint16(28,nm.length,true);c.setUint32(42,off,true);C.push(c.buffer,nm);off+=30+nm.length+f.d.length});
+const cl=C.reduce((a,b)=>a+b.byteLength,0),e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cl,true);e.setUint32(16,off,true);return new Blob([...P,...C,e.buffer],{type:'application/zip'})}
+$('exP').onclick=async()=>{parse();if(!total)return;const[W,H]=dims(+$('rs').value),fps=+$('fp').value,cv=document.createElement('canvas');cv.width=W;cv.height=H;const cx=cv.getContext('2d'),N=Math.ceil(total*fps),F=[];$('exP').disabled=true;
+for(let i=0;i<N;i++){draw(cx,W,H,i/fps);const b=await new Promise(r=>cv.toBlob(r,'image/png'));F.push({n:'f'+String(i+1).padStart(5,'0')+'.png',d:new Uint8Array(await b.arrayBuffer())});if(i%5==0){$('st').textContent='Frame '+(i+1)+' / '+N;await new Promise(r=>setTimeout(r))}}
+$('exP').disabled=false;$('st').textContent='ZIP ban raha hai...';await save('captions-png-'+fps+'fps.zip',zip(F))};
+setAct('cs');parse();applyPre();
+</script>
+</body>
+</html>
