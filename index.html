@@ -486,7 +486,20 @@
     .yp-spacer { flex: 1; }
     .yp-rate { width: auto; padding: 0 8px; border-radius: 999px; font: inherit; font-size: 12px; }
 
-    .channels { margin-top: 12px; display: grid; gap: 8px; }
+    .shelf-bar { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
+    .slot { position: relative; }
+    .slot .mx { position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 1 / 1.15; pointer-events: none; opacity: 0; }
+    .slot.flip .mx { opacity: .9; }
+    .proc {
+      display: none; margin-top: 8px; color: #b6ffc8; font: 12px/1.45 ui-monospace, monospace;
+      text-shadow: 0 0 8px #14ff6a;
+    }
+    .proc.on { display: block; }
+    .lane.x { display: none; }
+    body.lock { overflow: hidden; }
+    body.lock::before { content: ""; position: fixed; inset: 0; z-index: 80; }
+    body.lock .raid { pointer-events: auto; }
+    .channels { margin-top: 12px; margin-bottom: 26px; display: grid; gap: 8px; }
     .channels a {
       display: flex; align-items: center; gap: 10px; padding: 10px 12px;
       border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.03);
@@ -494,33 +507,44 @@
     .channels svg { width: 22px; height: 22px; flex: 0 0 auto; }
     .channels b { display: block; font-size: .92rem; }
     .channels span { display: block; color: var(--muted); font-size: .78rem; }
-      margin: 12px 22px 0;
-      color: #6f6784;
-      font-size: 0.72rem;
-      line-height: 1.4;
-      text-align: center;
+    .channels a {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.03);
     }
-    .hold {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 70;
-      place-items: center;
-      background: #07060c;
-      color: var(--gold);
-      letter-spacing: 0.08em;
-      text-align: center;
-      padding: 24px;
-    }
-    @media (orientation: landscape) and (max-height: 520px) and (pointer: coarse) {
-      body:not(.fs-on) header,
-      body:not(.fs-on) main { display: none; }
-      body:not(.fs-on) .hold { display: grid; }
+    .channels svg { width: 22px; height: 22px; flex: 0 0 auto; }
+    .channels b { display: block; font-size: .92rem; }
+    .notice {
+      margin: 8px 0 0;
+      padding: 16px 16px 15px;
+      border: 1px solid rgba(228, 197, 106, 0.28);
+      border-radius: 16px;
+      background: rgba(18, 16, 26, 0.86);
+      color: #c8bddb;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      text-align: left;
     }
     @media (min-width: 980px) and (pointer: fine) {
-      body { display: grid; place-items: start center; }
-      main { width: min(460px, 100%); padding-top: 28px; }
-      .profile { padding: 28px 22px 22px; }
+      body { display: block; }
+      main {
+        width: min(1120px, calc(100% - 56px));
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 18px 28px;
+        align-items: start;
+      }
+      .profile { grid-row: 1 / span 5; position: sticky; top: 74px; }
+      .shelf, .yp, .channels, .notice { grid-column: 2; }
+      .shelf-bar { justify-content: flex-end; }
+      .track { display: grid !important; grid-template-columns: 1fr 1fr; transform: none !important; }
+      .slot, .slot.main { opacity: 1; transform: none; flex: none; }
+      .lane.x { display: block; }
+      .lane.c { top: 18%; transform: rotate(-8deg); }
+      .lane.d { top: 74%; transform: rotate(10deg); }
+      .lane.e { top: 38%; transform: rotate(42deg); }
+      .lane.f { top: 62%; transform: rotate(-40deg); }
+      .officer { left: auto; right: 3vw; bottom: -6vh; transform: translate(130%, 0); }
+      .officer.up { transform: translate(0, 0); }
     }
   </style>
 </head>
@@ -571,11 +595,11 @@
       </div>
     </section>
 
-    <section class="legal-block">
-      <h2 class="headline">Legal</h2>
-      <div class="legal-row">
-        <span class="illegal">Illegal</span>
-        <button class="sound-toggle" id="soundToggle" type="button" aria-label="Sound off" aria-pressed="false">
+    <section class="shelf">
+      <hr class="sep" />
+      <div class="shelf-bar">
+        <span class="illegal">Illegal products</span>
+        <button class="sound-toggle" id="soundToggle" type="button" aria-label="Illegal off" aria-pressed="false">
           <span class="knob">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
               <path d="M12 3v9" />
@@ -587,16 +611,14 @@
       <audio id="baccha" preload="auto" src="baccha.mp3"></audio>
       <audio id="police" preload="auto" src="police.mp3"></audio>
       <audio id="funny" preload="auto" src="funny.mp3"></audio>
-    </section>
-
-    <hr class="sep" />
 
     <div class="picker-wrap">
       <button class="num-box" id="numBox" type="button">#1</button>
       <div class="menu" id="menu"></div>
     </div>
-    <div class="stage" id="stage"><div class="track" id="track"></div></div>
+    <div class="stage" id="stage"><div class="track" id="track"></div><pre class="proc" id="proc"></pre></div>
     <hr class="sep" />
+    </section>
     <div class="yp" id="ypShell">
       <div class="yp-stage" id="ypStage"><div id="ypYt"></div></div>
       <div class="yp-veil-top"></div>
@@ -630,12 +652,15 @@
     <p class="notice" id="notice"></p>
   </main>
 
-  <div class="hold">Phone upright rakho</div>
   <div class="raid" id="raid" aria-hidden="true">
     <div class="dim"></div>
     <div class="lights" id="lights"><span class="red"></span><span class="blue"></span></div>
     <div class="lane a" id="tape1"><i class="roll"></i><div class="strip"><b></b></div></div>
     <div class="lane b" id="tape2"><i class="roll"></i><div class="strip"><b></b></div></div>
+    <div class="lane x c"><i class="roll"></i><div class="strip"><b></b></div></div>
+    <div class="lane x d"><i class="roll"></i><div class="strip"><b></b></div></div>
+    <div class="lane x e"><i class="roll"></i><div class="strip"><b></b></div></div>
+    <div class="lane x f"><i class="roll"></i><div class="strip"><b></b></div></div>
     <img class="officer" id="officer" alt="" src="https://ik.imagekit.io/silentgamers/Picsart_26-10-03_14-11-29-809.png?updatedAt=1791017227196&ik-s=e4645f2f3f7e2d52182b83816f2f7e7b94db7b9d" />
   </div>
   <script src="vault.js"></script>
@@ -670,6 +695,7 @@
       });
       numBox.textContent = "#" + products[index].n;
       menu.querySelectorAll("button").forEach((b, n) => b.classList.toggle("active", n === index));
+      if (window.innerWidth >= 980) { track.style.transform = "none"; return; }
       const card = track.children[index];
       const shift = (stage.clientWidth - card.offsetWidth) / 2 - card.offsetLeft;
       track.style.transition = animate === false ? "none" : "";
@@ -682,7 +708,7 @@
       el.type = "button";
       el.className = "slot" + (i === 0 ? " main" : "");
       el.innerHTML =
-        '<img alt="" src="' + p.thumb + '">' +
+        '<img alt="" src="' + p.thumb + '"><canvas class="mx"></canvas>' +
         '<div class="meta"><h3>' + p.title + '</h3><span class="num">#' + p.n + '</span></div>';
       el.addEventListener("click", () => {
         if (moved) return;
@@ -730,15 +756,14 @@
     const funny = document.getElementById("funny");
     const raid = document.getElementById("raid");
     const officer = document.getElementById("officer");
-    let busy = false;
+    let busy = false, rains = [];
     const label = "CRIME SCENE  ·  DO NOT CROSS  ·  ";
-    document.querySelector("#tape1 b").textContent = label.repeat(10);
-    document.querySelector("#tape2 b").textContent = label.repeat(10);
+    document.querySelectorAll(".lane b").forEach(function (el) { el.textContent = label.repeat(10); });
 
     function setOn(on) {
       toggle.classList.toggle("on", on);
       toggle.setAttribute("aria-pressed", on ? "true" : "false");
-      toggle.setAttribute("aria-label", on ? "Illegal on" : "Illegal off");
+      toggle.setAttribute("aria-label", on ? "Illegal products on" : "Illegal products off");
     }
     function fadeOut(audio) {
       const from = audio.volume || 1, t0 = performance.now();
@@ -750,6 +775,47 @@
       }
       requestAnimationFrame(step);
     }
+    function stopMatrix() {
+      rains.forEach(clearInterval);
+      rains = [];
+      document.querySelectorAll(".slot").forEach(function (el) { el.classList.remove("flip"); });
+      document.getElementById("proc").classList.remove("on");
+    }
+    function cardMatrix() {
+      document.querySelectorAll(".slot").forEach(function (slot, n) {
+        const c = slot.querySelector("canvas");
+        if (!c) return;
+        slot.classList.add("flip");
+        const box = slot.querySelector("img").getBoundingClientRect();
+        c.width = Math.max(40, box.width);
+        c.height = Math.max(40, box.height);
+        const x = c.getContext("2d");
+        const cols = Math.max(4, Math.floor(c.width / 12));
+        const y = Array(cols).fill(n * 2);
+        rains.push(setInterval(function () {
+          x.fillStyle = "rgba(0,0,0,.2)";
+          x.fillRect(0, 0, c.width, c.height);
+          x.fillStyle = "#3dff7a";
+          x.font = "12px monospace";
+          for (let i = 0; i < cols; i++) {
+            x.fillText(String.fromCharCode(0x30A0 + ((i + n) % 90)), i * 12, y[i] * 14);
+            y[i] = y[i] * 14 > c.height && Math.random() > 0.96 ? 0 : y[i] + 1;
+          }
+        }, 60));
+      });
+    }
+    function resetRaid() {
+      stopMatrix();
+      officer.classList.remove("up");
+      document.getElementById("lights").classList.remove("on");
+      document.querySelectorAll(".lane").forEach(function (el) { el.classList.remove("out"); });
+      raid.classList.remove("on");
+      document.body.classList.remove("lock");
+      police.pause();
+      baccha.pause();
+      setOn(false);
+      busy = false;
+    }
     function finish() {
       officer.classList.remove("up");
       fadeOut(police);
@@ -757,43 +823,58 @@
       baccha.currentTime = 0;
       document.getElementById("lights").classList.remove("on");
       setTimeout(function () {
-        document.getElementById("tape1").classList.remove("out");
-        document.getElementById("tape2").classList.remove("out");
+        document.querySelectorAll(".lane").forEach(function (el) { el.classList.remove("out"); });
       }, 400);
       setTimeout(function () {
         raid.classList.remove("on");
+        document.body.classList.remove("lock");
         setOn(false);
         funny.currentTime = 0;
         const run = funny.play();
         if (run) run.catch(function () {});
         busy = false;
-      }, 2100);
+      }, 2200);
     }
     function seize() {
+      stopMatrix();
       raid.classList.add("on");
       document.getElementById("lights").classList.add("on");
       police.volume = 1;
       police.currentTime = 0;
       const siren = police.play();
       if (siren) siren.catch(function () {});
-      document.getElementById("tape1").classList.add("out");
-      setTimeout(function () { document.getElementById("tape2").classList.add("out"); }, 220);
-      setTimeout(function () { fadeOut(police); }, 1920);
+      document.querySelectorAll(".lane").forEach(function (el, i) {
+        setTimeout(function () { el.classList.add("out"); }, i * 140);
+      });
+      setTimeout(function () { fadeOut(police); }, 2100);
       setTimeout(function () {
         officer.classList.add("up");
         baccha.volume = 1;
         baccha.currentTime = 0;
         const kid = baccha.play();
         if (kid) kid.catch(function () { setTimeout(finish, 4000); });
-      }, 2420);
+      }, 2600);
     }
     baccha.addEventListener("ended", function () { if (busy) finish(); });
     toggle.addEventListener("click", function () {
       if (busy || toggle.classList.contains("on")) return;
       busy = true;
       setOn(true);
-      seize();
+      document.body.classList.add("lock");
+      const proc = document.getElementById("proc");
+      proc.textContent = "";
+      proc.classList.add("on");
+      cardMatrix();
+      const lines = ["root@kali:~# status", "LEGAL", "root@kali:~# npm run tool", "processing...", "ILLEGAL"];
+      let i = 0;
+      const type = setInterval(function () {
+        proc.textContent += lines[i] + "\n";
+        i += 1;
+        if (i >= lines.length) clearInterval(type);
+      }, 380);
+      setTimeout(seize, 2200);
     });
+    window.addEventListener("pageshow", resetRaid);
 
     var VIDEO = window.VAULT.homeVideo;
     var player = null, hideT = null, lastTap = 0, armed = false;
