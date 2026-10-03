@@ -722,7 +722,7 @@
     const police = document.getElementById("police");
     const funny = document.getElementById("funny");
     const raid = document.getElementById("raid");
-    const boot = document.getElementById("boot");
+    const bootEl = document.getElementById("boot");
     const officer = document.getElementById("officer");
     let busy = false, rain = 0;
 
@@ -763,7 +763,7 @@
     }
     function clearRaid() {
       clearInterval(rain);
-      boot.classList.remove("on");
+      bootEl.classList.remove("on");
       document.getElementById("lights").classList.remove("on");
       document.getElementById("tape1").classList.remove("out");
       document.getElementById("tape2").classList.remove("out");
@@ -789,7 +789,7 @@
       }, 1500);
     }
     function seize() {
-      boot.classList.remove("on");
+      bootEl.classList.remove("on");
       clearInterval(rain);
       police.volume = 1;
       police.currentTime = 0;
@@ -813,7 +813,7 @@
       busy = true;
       setOn(true);
       document.getElementById("term").textContent = "";
-      boot.classList.add("on");
+      bootEl.classList.add("on");
       matrix();
       const lines = ["root@d3m0n:~# status", "LEGAL", "root@d3m0n:~# flip", "ILLEGAL", "[ ok ] black linux active"];
       let i = 0;
