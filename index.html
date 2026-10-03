@@ -96,9 +96,22 @@
       padding: 18px 14px calc(28px + env(safe-area-inset-bottom));
     }
 
-    .profile {
-      position: relative;
-      overflow: hidden;
+    .profile::before {
+      content: "";
+      position: absolute;
+      left: -30%;
+      right: -30%;
+      top: 18%;
+      height: 140%;
+      background:
+        linear-gradient(rgba(196,181,253,.45) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(196,181,253,.45) 1px, transparent 1px);
+      background-size: 34px 34px;
+      transform: perspective(480px) rotateX(62deg);
+      opacity: .22;
+      pointer-events: none;
+    }
+    .profile > * { position: relative; z-index: 1; }
       background: linear-gradient(180deg, rgba(124, 58, 237, 0.16), rgba(18, 16, 26, 0.92));
       border: 1px solid var(--line);
       border-radius: 22px;
@@ -484,9 +497,10 @@
     .yp-ico svg { width: 16px; height: 16px; fill: currentColor; }
     .yp-time { font-size: 11px; font-variant-numeric: tabular-nums; }
     .yp-spacer { flex: 1; }
-    .yp-rate { width: auto; padding: 0 8px; border-radius: 999px; font: inherit; font-size: 12px; }
+    .yp-rate, .yp-skip { width: auto; padding: 0 8px; border-radius: 999px; font: inherit; font-size: 12px; }
 
     .shelf-bar { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
+    .shelf-bar .picker-wrap { margin: 0 0 0 auto; }
     .slot { position: relative; }
     .slot .mx { position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 1 / 1.15; pointer-events: none; opacity: 0; }
     .slot.flip .mx { opacity: .9; }
@@ -496,8 +510,8 @@
     }
     .proc.on { display: block; }
     .lane.x { display: none; }
-    body.lock { overflow: hidden; }
-    body.lock::before { content: ""; position: fixed; inset: 0; z-index: 80; }
+    body.lock { }
+    .hash-now { margin-left: auto; color: var(--gold); font-weight: 700; letter-spacing: .08em; }
     body.lock .raid { pointer-events: auto; }
     .channels { margin-top: 12px; margin-bottom: 26px; display: grid; gap: 8px; }
     .channels a {
@@ -607,15 +621,14 @@
             </svg>
           </span>
         </button>
+        <div class="picker-wrap">
+          <button class="num-box" id="numBox" type="button">#1</button>
+          <div class="menu" id="menu"></div>
+        </div>
       </div>
       <audio id="baccha" preload="auto" src="baccha.mp3"></audio>
       <audio id="police" preload="auto" src="police.mp3"></audio>
       <audio id="funny" preload="auto" src="funny.mp3"></audio>
-
-    <div class="picker-wrap">
-      <button class="num-box" id="numBox" type="button">#1</button>
-      <div class="menu" id="menu"></div>
-    </div>
     <div class="stage" id="stage"><div class="track" id="track"></div><pre class="proc" id="proc"></pre></div>
     <hr class="sep" />
     </section>
@@ -643,6 +656,7 @@
             <span class="yp-time" id="ypTime">0:00 / 0:00</span>
             <span class="yp-spacer"></span>
             <button class="yp-ico yp-rate" id="ypRate" type="button">1×</button>
+            <button class="yp-ico yp-skip" id="ypSkip" type="button">Skip</button>
             <button class="yp-ico" id="ypFull" type="button" aria-label="Fullscreen"></button>
           </div>
         </div>
@@ -874,7 +888,10 @@
       }, 380);
       setTimeout(seize, 2200);
     });
-    window.addEventListener("pageshow", resetRaid);
+    document.addEventListener("click", function (e) {
+      if (!document.body.classList.contains("lock")) return;
+      if (e.target.closest("a, button")) e.preventDefault();
+    }, true);
 
     var VIDEO = window.VAULT.homeVideo;
     var player = null, hideT = null, lastTap = 0, armed = false;
@@ -974,7 +991,8 @@
             if (frame) frame.referrerPolicy = "strict-origin-when-cross-origin";
             player.setVolume(vol);
             forceHD();
-            player.playVideo();
+            player.loadVideoById(VIDEO);
+            setTimeout(function () { player.loadVideoById(VIDEO); forceHD(); }, 90);
             document.getElementById("ypCurtain").classList.add("off");
             showChrome();
           },
@@ -1031,6 +1049,13 @@
       rateAt = (rateAt + 1) % rates.length;
       player.setPlaybackRate(rates[rateAt]);
       this.textContent = rates[rateAt] + "×";
+      showChrome();
+    };
+    document.getElementById("ypSkip").onclick = function () {
+      if (!player) return ensure();
+      var t = player.getCurrentTime ? player.getCurrentTime() : 0;
+      player.loadVideoById({ videoId: VIDEO, startSeconds: t });
+      setTimeout(function () { player.loadVideoById({ videoId: VIDEO, startSeconds: Math.max(0, t) }); forceHD(); }, 80);
       showChrome();
     };
     document.getElementById("ypFull").onclick = function () {
