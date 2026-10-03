@@ -19,16 +19,18 @@
     a { color:inherit; text-decoration:none; }
     button { font-family:inherit; }
     header {
-      position:sticky; top:0; z-index:20; display:grid; grid-template-columns:40px 1fr 40px; align-items:center;
-      padding:calc(6px + env(safe-area-inset-top)) 12px 6px; background:rgba(7,6,12,.78); backdrop-filter:blur(16px);
-      border-bottom:1px solid rgba(255,255,255,.06);
+      position: sticky; top: 0; z-index: 20;
+      display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; gap: 8px;
+      padding: calc(6px + env(safe-area-inset-top)) 12px 6px;
+      background: rgba(7, 6, 12, 0.78); backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
-    .back, .brand-icon { width:36px; height:36px; border-radius:10px; display:grid; place-items:center; }
-    .back { border:1px solid var(--line); background:rgba(124,58,237,.16); color:var(--gold); }
-    .back svg { width:18px; height:18px; }
-    .brand-icon { object-fit:contain; background:#000; margin-left:auto; }
-    .brand { text-align:center; font-weight:760; letter-spacing:.04em; font-size:1.05rem; text-shadow:0 1px 6px #000; }
-    .brand b { color:#c4b5fd; }
+    .back, .brand-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; }
+    .back { border: 1px solid var(--line); background: rgba(124, 58, 237, 0.16); color: var(--gold); }
+    .back svg { width: 18px; height: 18px; }
+    .brand-icon { object-fit: contain; object-position: center; background: #000; margin-left: auto; }
+    .brand { text-align: center; font-family: system-ui, sans-serif; font-weight: 760; letter-spacing: 0.04em; font-size: 1.05rem; color: #fff; text-shadow: 0 1px 6px #000; }
+    .brand b { color: #c4b5fd; font-weight: 760; }
     main { width:min(720px,100%); margin:0 auto; padding:18px 14px calc(28px + env(safe-area-inset-bottom)); }
     .kicker { color:var(--gold); letter-spacing:.16em; font-size:.78rem; font-weight:700; }
     h1 { margin-top:6px; font-family:"Syne",sans-serif; font-size:1.7rem; letter-spacing:.04em; }
@@ -36,8 +38,10 @@
     .sheet { margin-top:16px; background:linear-gradient(180deg, rgba(124,58,237,.16), rgba(18,16,26,.92)); border:1px solid var(--line); border-radius:22px; padding:14px; }
     .stage { overflow:hidden; border-radius:16px; background:#000; touch-action:pan-y; position:relative; }
     .track { display:flex; transition:transform .52s cubic-bezier(.22,.8,.28,1); will-change:transform; }
-    .frame { flex:0 0 100%; min-width:100%; border:0; padding:0; background:#000; position:relative; color:inherit; }
-    .frame img { width:100%; aspect-ratio:1/1.05; object-fit:contain; display:block; background:#000; }
+    .frame { flex: 0 0 100%; width: 100%; min-width: 100%; border: 0; padding: 0; background: #000; position: relative; color: inherit; display: grid; place-items: center; overflow: hidden; aspect-ratio: 1 / 1.05; }
+    .frame img { width: 100%; height: 100%; aspect-ratio: auto; object-fit: contain; display: block; background: #000; }
+    .frame img.gif { image-rendering: auto; }
+    .frame .yp { width: 100%; max-width: 100%; margin: 0; border-radius: 0; aspect-ratio: 16/9; }
     .play { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:58px; height:58px; border-radius:50%; display:grid; place-items:center; color:#fff; background:linear-gradient(180deg,#8b5cf6,#7c3aed); }
     .play svg { width:22px; height:22px; fill:currentColor; }
     .dots { display:flex; justify-content:center; gap:6px; margin-top:10px; }
@@ -57,7 +61,11 @@
     .yp:fullscreen, .yp:-webkit-full-screen, .yp.force-land { width:100%; height:100%; max-width:none; border-radius:0; aspect-ratio:auto; }
     .yp.force-land { position:fixed; z-index:80; width:100vh; height:100vw; top:50%; left:50%; transform:translate(-50%,-50%) rotate(90deg); }
     .yp-stage { position:absolute; inset:0; overflow:hidden; background:#000; }
-    .yp #ypYt, .yp #ypYt iframe, .yp #cpYt, .yp #cpYt iframe { position:absolute; left:0; top:0; width:100%; height:100%; border:0; pointer-events:none; }
+    .yp #ypYt, .yp #cpYt { position: absolute; left: 0; width: 100%; top: -42px; height: calc(100% + 84px); border: 0; pointer-events: none; }
+    .yp #ypYt iframe, .yp #cpYt iframe { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+    .yp-veil-top, .yp-veil-bot { position: absolute; left: 0; right: 0; z-index: 2; pointer-events: none; background: #000; }
+    .yp-veil-top { top: 0; height: 28px; }
+    .yp-veil-bot { bottom: 0; height: 34px; }
     .yp-hit { position:absolute; inset:0; z-index:3; }
     .yp-flash, .yp-meter { position:absolute; z-index:6; display:none; pointer-events:none; }
     .yp-flash.on, .yp-meter.on { display:grid; }
@@ -82,7 +90,10 @@
     .yp-ico { width:34px; height:34px; padding:0; border:0; border-radius:50%; color:#fff; background:rgba(255,255,255,.1); display:grid; place-items:center; }
     .yp-ico svg { width:16px; height:16px; fill:currentColor; }
     .yp-time { font-size:11px; } .yp-spacer { flex:1; } .yp-rate { width:auto; padding:0 8px; border-radius:999px; font:inherit; font-size:12px; }
-    .credit { margin-top:10px; color:var(--muted); font-size:.86rem; text-align:center; }
+    .credit { margin-top: 10px; color: var(--muted); font-size: .86rem; text-align: center; }
+    .channels { margin-top: 14px; display: grid; gap: 8px; }
+    .channels a { display: flex; flex-direction: column; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line); }
+    .channels span { color: var(--muted); font-size: .78rem; }
     .credit b { color:var(--gold); }
     .notice { margin:12px 22px 0; color:#6f6784; font-size:.72rem; line-height:1.4; text-align:center; }
     .hold { display:none; position:fixed; inset:0; z-index:70; place-items:center; background:#07060c; color:var(--gold); letter-spacing:.08em; text-align:center; padding:24px; }
@@ -108,7 +119,6 @@
     <div id="view"></div>
     <p class="notice" id="notice"></p>
   </main>
-  <div class="hold">Phone upright rakho</div>
   <script src="vault.js"></script>
   <script>
     document.getElementById("notice").textContent = window.VAULT.disclaimer;
@@ -155,7 +165,7 @@
       player = new YT.Player("ypYt", {
         videoId: VIDEO, host: "https://www.youtube-nocookie.com",
         playerVars: { autoplay: 1, controls: 0, rel: 0, iv_load_policy: 3, playsinline: 1, modestbranding: 1, fs: 0, vq: "hd1080" },
-        events: { onReady: function () { try { player.setPlaybackQuality("hd1080"); } catch (e) {} player.playVideo(); document.getElementById("ypCurtain").classList.add("off"); showChrome(); }, onStateChange: paint }
+        events: { onReady: function () { try { player.setPlaybackQuality("hd1080"); } catch (e) {} player.loadVideoById(VIDEO); setTimeout(function () { player.loadVideoById(VIDEO); }, 90); document.getElementById("ypCurtain").classList.add("off"); showChrome(); }, onStateChange: paint }
       });
       setInterval(paint, 400);
     }
@@ -167,7 +177,7 @@
     }
     function openClip(id, frame) {
       if (!id || frame.querySelector("#cpHit")) return;
-      frame.innerHTML = '<div class="yp" style="margin:0;border-radius:0;aspect-ratio:1/1.05"><div class="yp-stage"><div id="cpYt"></div></div><div class="yp-hit" id="cpHit"></div><div class="yp-flash l" id="cpL">-10</div><div class="yp-flash c" id="cpC">Pause</div><div class="yp-flash r" id="cpR">+10</div><div class="yp-curtain" id="cpCurtain"><button class="yp-play" id="cpStart" type="button">' + playI + '</button></div><div class="yp-chrome" id="cpChrome"><div class="yp-logo">D3M0N<b>.IN</b></div><div class="yp-bar"><div class="yp-row"><button class="yp-ico" id="cpToggle" type="button">' + pauseI + '</button></div></div></div></div>';
+      frame.innerHTML = '<div class="yp" style="margin:0;border-radius:0"><div class="yp-stage"><div id="cpYt"></div></div><div class="yp-veil-top"></div><div class="yp-veil-bot"></div><div class="yp-hit" id="cpHit"></div><div class="yp-flash l" id="cpL">-10</div><div class="yp-flash c" id="cpC">Pause</div><div class="yp-flash r" id="cpR">+10</div><div class="yp-curtain" id="cpCurtain"><button class="yp-play" id="cpStart" type="button">' + playI + '</button></div><div class="yp-chrome" id="cpChrome"><div class="yp-logo">D3M0N<b>.IN</b></div><div class="yp-bar"><div class="yp-row"><button class="yp-ico" id="cpToggle" type="button">' + pauseI + '</button></div></div></div></div>';
       var clip = null, last = 0;
       function start() {
         clip = new YT.Player("cpYt", { videoId: id, host: "https://www.youtube-nocookie.com", playerVars: { autoplay: 1, controls: 0, rel: 0, playsinline: 1, modestbranding: 1, vq: "hd1080" }, events: { onReady: function () { try { clip.setPlaybackQuality("hd1080"); } catch (e) {} clip.playVideo(); document.getElementById("cpCurtain").classList.add("off"); } } });
@@ -199,8 +209,8 @@
       VIDEO = item.tutorial.id || "";
       document.title = item.name;
       var frames = item.media.map(function (m) {
-        if (m.type === "video") return '<button class="frame" type="button" data-vid="' + m.id + '"><img alt="" src="' + (m.thumb || "") + '"><span class="play">' + playI + '</span></button>';
-        return '<button class="frame" type="button"><img alt="" src="' + m.src + '"></button>';
+        var gif = m.type === "gif" || /\.gif($|\?)/i.test(m.src || "");
+        return '<button class="frame" type="button"><img class="' + (gif ? "gif" : "") + '" alt="" src="' + (m.src || m.thumb || "") + '"></button>';
       }).join("");
       view.innerHTML =
         '<p class="kicker">#' + n + '</p><h1>' + item.name + '</h1><section class="sheet">' +
@@ -208,11 +218,12 @@
         '<hr class="sep"><h2>Components</h2><ul>' + item.parts.map(function (p) { return "<li><i></i><span>" + p + "</span></li>"; }).join("") + '</ul>' +
         '<hr class="sep"><h2>GitHub</h2><div class="repos">' + item.repos.map(function (r) { return '<a class="repo" href="' + r.href + '" target="_blank" rel="noopener">' + GH + '<span><b>' + r.name + '</b><span>' + r.href.replace("https://", "") + '</span></span></a>'; }).join("") + '</div>' +
         '<hr class="sep"><h2>Description</h2><p class="desc">' + (item.description || "") + '</p>' +
-        '<hr class="sep"><h2>Tutorial</h2><div class="yp" id="ypShell"><div class="yp-stage" id="ypStage"><div id="ypYt"></div></div><div class="yp-hit" id="ypHit"></div><div class="yp-flash l" id="ypFlashL">-10</div><div class="yp-flash c" id="ypFlashC">Pause</div><div class="yp-flash r" id="ypFlashR">+10</div><div class="yp-meter l" id="ypBrit"><i id="ypBritfill"></i></div><div class="yp-meter r" id="ypVol"><i id="ypVolfill"></i></div>' +
+        '<hr class="sep"><h2>Tutorial</h2><div class="yp" id="ypShell"><div class="yp-stage" id="ypStage"><div id="ypYt"></div></div><div class="yp-veil-top"></div><div class="yp-veil-bot"></div><div class="yp-hit" id="ypHit"></div><div class="yp-flash l" id="ypFlashL">-10</div><div class="yp-flash c" id="ypFlashC">Pause</div><div class="yp-flash r" id="ypFlashR">+10</div><div class="yp-meter l" id="ypBrit"><i id="ypBritfill"></i></div><div class="yp-meter r" id="ypVol"><i id="ypVolfill"></i></div>' +
         '<div class="yp-curtain" id="ypCurtain"><button class="yp-play" id="ypStart" type="button">' + playI + '</button></div>' +
         '<button class="yp-end off" id="ypEnd" type="button"><img alt="" src="' + (item.tutorial.thumb || "") + '"><span class="yp-play">' + playI + '</span></button>' +
-        '<div class="yp-chrome" id="ypChrome"><div class="yp-logo">D3M0N<b>.IN</b></div><div class="yp-bar"><input class="yp-seek" id="ypSeek" type="range" min="0" max="1000" value="0"><div class="yp-row"><button class="yp-ico" id="ypToggle" type="button"></button><span class="yp-time" id="ypTime">0:00 / 0:00</span><span class="yp-spacer"></span><button class="yp-ico yp-rate" id="ypRate" type="button">1×</button><button class="yp-ico" id="ypFull" type="button"></button></div></div></div></div>' +
-        (item.tutorial.credit ? '<p class="credit">video credit = <b>' + item.tutorial.credit + '</b></p>' : '') + '</section>';
+        '<div class="yp-chrome" id="ypChrome"><div class="yp-logo">D3M0N<b>.IN</b></div><div class="yp-bar"><input class="yp-seek" id="ypSeek" type="range" min="0" max="1000" value="0"><div class="yp-row"><button class="yp-ico" id="ypToggle" type="button"></button><span class="yp-time" id="ypTime">0:00 / 0:00</span><span class="yp-spacer"></span><button class="yp-ico yp-rate" id="ypRate" type="button">1×</button><button class="yp-ico" id="ypSkip" type="button">Skip</button><button class="yp-ico" id="ypFull" type="button"></button></div></div></div></div>' +
+        (item.tutorial.credit ? '<p class="credit">video credit = <b>' + item.tutorial.credit + '</b></p>' : '') +
+        '<div class="channels"><a href="' + (window.VAULT.igBroadcast || "#") + '" target="_blank" rel="noopener"><b>Broadcast channel</b><span>Instagram</span></a><a href="' + (window.VAULT.tgChannel || "#") + '" target="_blank" rel="noopener"><b>Telegram channel</b><span>Telegram</span></a></div></section>';
       var stage = document.getElementById("stage"), track = document.getElementById("track"), dots = document.getElementById("dots"), at = 0, startX = 0;
       function go(i) { at = Math.max(0, Math.min(item.media.length - 1, i)); if (track) track.style.transform = "translateX(" + (-at * stage.clientWidth) + "px)"; Array.from(dots.children).forEach(function (d, k) { d.className = k === at ? "on" : ""; }); }
       item.media.forEach(function (_, i) { var dot = document.createElement("i"); if (i === 0) dot.className = "on"; dot.onclick = function () { go(i); }; dots.appendChild(dot); });
@@ -235,6 +246,12 @@
       };
       document.getElementById("ypSeek").oninput = function () { if (player && player.getDuration()) player.seekTo((this.value / 1000) * player.getDuration(), true); };
       document.getElementById("ypRate").onclick = function () { if (!player) return; rateAt = (rateAt + 1) % rates.length; player.setPlaybackRate(rates[rateAt]); this.textContent = rates[rateAt] + "×"; };
+      document.getElementById("ypSkip").onclick = function () {
+        if (!player) return ensure();
+        var t = player.getCurrentTime ? player.getCurrentTime() : 0;
+        player.loadVideoById({ videoId: VIDEO, startSeconds: t });
+        setTimeout(function () { player.loadVideoById({ videoId: VIDEO, startSeconds: t }); }, 80);
+      };
       document.getElementById("ypHit").addEventListener("touchend", function (e) {
         var t = e.changedTouches[0], box = this.getBoundingClientRect(), now = Date.now();
         var z = t.clientX - box.left < box.width * 0.33 ? "l" : t.clientX - box.left > box.width * 0.67 ? "r" : "c";
