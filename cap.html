@@ -71,11 +71,12 @@ textarea{height:170px}
 .cut.on .hd{border-right-color:#fff}
 .pc{min-height:74px}
 #copyP{margin-bottom:8px}
+.joy{width:168px;height:168px;border-radius:50%;border:1px solid var(--ln);position:relative;touch-action:none;margin:10px auto;background:radial-gradient(circle at 50% 50%,var(--p2),var(--pn) 70%)}.joy i{position:absolute;width:58px;height:58px;border-radius:50%;background:var(--ac);left:50%;top:50%;transform:translate(-50%,-50%);box-shadow:0 6px 16px #0006}.swatch{width:28px;height:28px;border-radius:50%;border:2px solid var(--ln)}
 </style>
 </head>
 <body>
 <div id="app">
-<header id="top"><div class="brand"><b>caption</b><span>by d3m0n.in</span></div><span id="st"></span><button class="pri" id="exb">Export</button></header>
+<header id="top"><div class="brand"><b>caption</b><span>by d3m0n.in</span></div><span id="st"></span><button class="chip" id="full">Full controls</button><button class="pri" id="exb">Export</button></header>
 <main id="stw"><canvas id="pv"></canvas></main>
 <div id="bar"><button class="ib" id="play" aria-label="Play"></button><span id="tm"></span><button class="ib" id="zo" aria-label="Zoom out">−</button><button class="ib" id="zi" aria-label="Zoom in">+</button></div>
 <section id="tlw"><div id="tl"><div id="tlin"></div></div><div id="ph"></div></section>
@@ -91,7 +92,7 @@ const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"]/g,c=>({
 const FM={inter:['800','"Inter Tight","Noto Sans Devanagari","Mukta",system-ui,sans-serif'],bebas:['400','"Bebas Neue","Noto Sans Devanagari",Impact,sans-serif'],space:['700','"Space Grotesk","Noto Sans Devanagari",system-ui,sans-serif']};
 const FA={instr:['italic 400','"Instrument Serif","Noto Serif Devanagari",Georgia,serif'],play:['italic 700','"Playfair Display","Noto Serif Devanagari",Georgia,serif']};
 const FL={inter:'800 40px "Inter Tight"',bebas:'400 40px "Bebas Neue"',space:'700 40px "Space Grotesk"',instr:'italic 400 40px "Instrument Serif"',play:'italic 700 40px "Playfair Display"'};
-const S={an:'blur',ex:'fade',rv:.86,al:'left',po:'c',as:'9:16',wc:6,ak:1,gy:1,fm:'inter',fa:'instr',cm:'n',tr:0,fit:'cover',ts:100,sh:0,shD:6,shA:90,shB:30,shO:55,shX:0,shI:0,ow:0,rs:1,fp:60,fmt:'webm',pre:'cream'};
+const S={an:'blur',ex:'fade',rv:.86,al:'left',po:'c',as:'9:16',wc:6,ak:1,gy:1,fm:'inter',fa:'instr',cm:'n',tr:0,fit:'cover',ts:100,sh:0,shD:6,shA:90,shB:30,shO:55,shX:0,shI:0,ow:0,rs:1,fp:60,fmt:'webm',pre:'cream',simple:1,wf:'block',nx:0,ny:0,ripple:1};
 const C={bg:'#f1efe9',c1:'#141414',cg:'#9a9892',cs:'#b3001b',cc:'#b3001b',sc:'#000000',oc:'#000000'};
 const SHP={none:{sh:0},soft:{sh:1,shD:6,shA:90,shB:30,shO:55,shX:0},hard:{sh:1,shD:8,shA:45,shB:0,shO:100,shX:0},long:{sh:1,shD:26,shA:45,shB:0,shO:100,shX:1},glow:{sh:1,shD:0,shA:0,shB:45,shO:95,shX:0},lift:{sh:1,shD:14,shA:90,shB:50,shO:70,shX:0}};
 const PRE={cream:['Reel Cream',['#f1efe9','#141414','#9a9892','#b3001b','#b3001b','#000000','#000000'],{an:'blur',al:'left',tr:0,fm:'inter',fa:'instr',sp:'none',ow:0}],
@@ -168,18 +169,18 @@ if(F.res&&F.res.m===m)b=F.res;else if(m.place==='back'){const s=Math.max(W/m.w,H
 else{let w=W*m.size/100,h=w*m.h/m.w;if(h>H*.5){h=H*.5;w=h*m.w/m.h}b={x:W*m.cx/100-w/2,y:H*m.cy/100-h/2,w,h}}dImg(ctx,m,b,W,H,t,wn)})}
 /* text */
 const FZ={g:.5,m:1,s:1.5,k:1.7};
-function layout(ctx,ch,W,H){const key=W+','+H+','+rev;if(ch._k===key)return ch._L;
+function layout(ctx,ch,W,H){const key=W+','+H+','+rev+','+S.wf+','+S.nx+','+S.ny;if(ch._k===key)return ch._L;
 const F=frame(W,H,ch),base=Math.min(W,H)*(W>H?.11:.105)*S.ts/100,maxW=F.x1-F.x0,al=S.al;let toks=ch.tok.slice(),lines=[],buf=[];
 if(toks.length>=5&&S.gy)lines.push({kind:'g',tk:toks.splice(0,2)});
 const fl=()=>{if(buf.length)lines.push({kind:'m',tk:buf});buf=[]};
-toks.forEach(k=>{if(k.m==='s'||k.m==='k'){fl();lines.push({kind:k.m,tk:[k]})}else{buf.push(k);if(buf.length>=2)fl()}});fl();
+toks.forEach(k=>{if(k.m==='s'||k.m==='k'||(S.wf==='punch'&&k.m==='c')){fl();lines.push({kind:k.m==='c'?'m':k.m,tk:[k]})}else{buf.push(k);if(S.wf==='stack'||buf.length>=2)fl()}});fl();if(S.wf==='stack')lines=ch.tok.map(k=>({kind:(k.m==='s'||k.m==='k')?k.m:'m',tk:[k]}));
 let y=0,acc=0,wi=0;const Ct=ch.tok.reduce((s,x)=>s+x.t.length,0),words=[];
-lines.forEach((ln,li)=>{let f=base*FZ[ln.kind];ctx.font=fnt(ln.kind,f);let sp=ctx.measureText(' ').width,w=ln.tk.reduce((s,k)=>s+ctx.measureText(k.t).width,0)+sp*(ln.tk.length-1);
+lines.forEach((ln,li)=>{let f=base*FZ[ln.kind];if(S.wf==='punch'&&ln.kind==='k')f*=1.35;ctx.font=fnt(ln.kind,f);let sp=ctx.measureText(' ').width,w=ln.tk.reduce((s,k)=>s+ctx.measureText(k.t).width,0)+sp*(ln.tk.length-1);
 if(w>maxW){f*=maxW/w;ctx.font=fnt(ln.kind,f);sp=ctx.measureText(' ').width;w=maxW}ln.f=f;ln.lh=f*1.06;ln.top=y;y+=ln.lh+base*.1;
 let x=al==='left'?F.x0:al==='right'?F.x1-w:al==='zig'?(li%2?F.x1-w:F.x0):F.x0+(maxW-w)/2;
 ln.tk.forEach(k=>{const ww=ctx.measureText(k.t).width;words.push({t:k.t,x,w:ww,f,kind:ln.kind,col:ln.kind==='m'?(k.m==='c'?'cc':'c1'):ln.kind==='g'?'cg':'cs',li,wi:wi++,a0:acc/Ct,a1:(acc+k.t.length)/Ct});acc+=k.t.length;x+=ww+sp})});
-const bh=y-base*.1;let top=S.po==='c'?(F.A0+F.A1)/2-bh/2:S.po==='t'?F.A0+H*.03:F.A1-bh-H*.03;if(top<F.A0)top=F.A0;
-words.forEach(w=>{const ln=lines[w.li];w.y=top+ln.top+ln.lh*.82});ch._k=key;return ch._L={words,top,bh,base,H,F}}
+const bh=y-base*.1,po=S.wf==='lower'?'b':S.po;let top=po==='c'?(F.A0+F.A1)/2-bh/2:po==='t'?F.A0+H*.03:F.A1-bh-H*.03;if(top<F.A0)top=F.A0;
+words.forEach(w=>{const ln=lines[w.li];w.x+=W*S.nx/100;w.y=top+ln.top+ln.lh*.82+H*S.ny/100});ch._k=key;return ch._L={words,top,bh,base,H,F}}
 function fx(ctx,txt,ox,f,col){const u=f/100,a=S.shA*Math.PI/180,dx=Math.cos(a)*S.shD*u*.6,dy=Math.sin(a)*S.shD*u*.6,ow=S.ow*u*.4;
 if(S.sh&&S.shX){ctx.fillStyle=C.sc;for(let i=24;i>=1;i--)ctx.fillText(txt,ox+dx*i/24,dy*i/24)}
 const ds=S.sh&&!S.shX;if(ow>0){ctx.lineJoin='round';ctx.strokeStyle=C.oc;ctx.lineWidth=ow*2;if(ds)shd(ctx,u,dx,dy);ctx.strokeText(txt,ox,0);ctx.shadowColor='transparent'}else if(ds)shd(ctx,u,dx,dy);
@@ -232,9 +233,12 @@ $('play').onclick=()=>{if(playing)return stopP();if(!total)return msg('No timest
 $('zi').onclick=()=>{pps=Math.min(240,pps*1.4);renderTL()};$('zo').onclick=()=>{pps=Math.max(15,pps/1.4);renderTL()};
 /* sheet + panels */
 const ICONS={'script': '<svg viewBox="0 0 24 24"><path d="M6 4h9l3 3v13H6z"/><path d="M15 4v3h3M8 11h8M8 15h6"/></svg>', 'style': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 5v2M12 17v2M5 12h2M17 12h2"/></svg>', 'color': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 5a7 7 0 0 1 0 14"/></svg>', 'motion': '<svg viewBox="0 0 24 24"><path d="M5 16c4-8 10-8 14 0"/><path d="M8 16h.1M12 13h.1M16 16h.1"/></svg>', 'shadow': '<svg viewBox="0 0 24 24"><path d="M7 6h8v8H7z"/><path d="M10 10h8v8h-8z"/></svg>', 'image': '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M7 15l3-3 2 2 3-4 2 5"/></svg>', 'layout': '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 10v10"/></svg>', 'export': '<svg viewBox="0 0 24 24"><path d="M12 4v10"/><path d="M8 10l4 4 4-4"/><path d="M5 19h14"/></svg>'};
-const TOOLS=[['script','Script'],['style','Style'],['color','Colour'],['motion','Motion'],['shadow','Shadow'],['image','Image'],['layout','Layout'],['export','Export']];
-$('tools').innerHTML=TOOLS.map(([k,l])=>`<button data-tab="${k}"><span>${ICONS[k]}</span>${l}</button>`).join('');
 $('play').innerHTML='<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M8 5v14l12-7z"/></svg>';
+ICONS.look=ICONS.style;
+const ALL=[['script','Script'],['look','Look'],['style','Style'],['color','Colour'],['motion','Motion'],['shadow','Shadow'],['image','Image'],['layout','Layout'],['export','Export']];
+const SIMPLE=[['script','Script'],['look','Look'],['image','Image'],['export','Export']];
+function paintTools(){const list=S.simple?SIMPLE:ALL;$('tools').innerHTML=list.map(([k,l])=>`<button data-tab="${k}"><span>${ICONS[k]}</span>${l}</button>`).join('');document.querySelectorAll('#tools button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab))}
+paintTools();
 let tab=null,tgt='c1',hsv=[0,0,0],recent=[];
 const chp=(k,o,c)=>o.map(([v,l])=>`<button class="chip${String(c)===String(v)?' on':''}" data-s="${k}" data-v="${v}">${l}</button>`).join('');
 const sl=(k,l,mn,mx,u='',st=1)=>`<label class="sl"><span>${l}<output>${S[k]}${u}</output></span><input type="range" data-r="${k}" min="${mn}" max="${mx}" step="${st}" value="${S[k]}"></label>`;
@@ -242,13 +246,36 @@ const rw=(t,h)=>`<div class="rw"><h4>${t}</h4><div class="chips">${h}</div></div
 const OF=[[1,'On'],[0,'Off']];
 const sws=a=>a.map(c=>`<i data-c="${c}" style="background:${c}" title="${c}"></i>`).join('');
 function openTab(k){tab=tab===k?null:k;sheet()}
-function sheet(){document.querySelectorAll('#tools button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));$('sheet').hidden=!tab;if(!tab)return;$('stt').textContent=(TOOLS.find(x=>x[0]===tab)||[])[2];$('sb').innerHTML=PN[tab]();after()}
+function sheet(){paintTools();$('sheet').hidden=!tab;if(!tab)return;$('stt').textContent=(TOOLS.find(x=>x[0]===tab)||[])[2];$('sb').innerHTML=PN[tab]();after()}
+const COL={
+d3m0n:['d3m0n',['#14081f','#ffffff','#c4b0ea','#b47bff','#ffd23f','#000000','#000000']],
+gold:['Gold on black',['#0c0c0c','#fff8e8','#cbb98a','#e6c15a','#ffffff','#000000','#000000']],
+purple:['Purple gold',['#1a0b33','#ffffff','#b9a0e6','#c9a6ff','#ffd23f','#000000','#000000']],
+ink:['White on black',['#000000','#ffffff','#cfcfcf','#ffffff','#ffd23f','#000000','#000000']],
+paper:['Black on white',['#f7f4ee','#141414','#8a8478','#6d28d9','#b45309','#000000','#000000']],
+royal:['Royal',['#0b0616','#f4e9ff','#a78bda','#8b5cf6','#f5d76e','#000000','#000000']],
+noir:['Noir gold',['#111111','#f3e6c4','#9a8b6a','#d4a017','#ffffff','#000000','#000000']],
+punch:['Punch red',['#12080a','#ffffff','#d7b8b8','#ff3b30','#ffd23f','#000000','#000000']],
+street:['Street',['#10140a','#ffffff','#c9d5a8','#d6ff3f','#ffffff','#000000','#000000']],
+cinema:['Cinema',['#0c0c0c','#f4efe4','#8c867c','#e4d3ae','#e4d3ae','#000000','#000000']],
+ocean:['Ocean',['#06131f','#e8f6ff','#6e9bb5','#4cc9f0','#ffd166','#000000','#000000']],
+mint:['Mint',['#0b1f1a','#eafff7','#6aa595','#3dffa6','#ffd23f','#000000','#000000']],
+news:['News',['#ffffff','#111111','#888888','#d90429','#111111','#000000','#000000']],
+sunset:['Sunset',['#1a0b12','#fff1e6','#b08a8a','#ff7a45','#ffd166','#000000','#000000']]};
+const MOT={snap:['Snap',{an:'pop',ex:'fade',rv:.6}],rise:['Rise',{an:'slide',ex:'fade',rv:.86}],type:['Type',{an:'type',ex:'fade',rv:1}],punch:['Punch',{an:'bounce',ex:'shrink',rv:.6}],karaoke:['Karaoke',{an:'kara',ex:'fade',rv:1}],mask:['Mask',{an:'mask',ex:'fade',rv:.86}],still:['Still',{an:'fade',ex:'none',rv:1}]};
+function applyCol(k){const p=COL[k];if(!p)return;IDS.forEach((id,i)=>C[id]=p[1][i]);style()}
 const PN={
-script:()=>`<button class="pri" id="copyP">Copy format prompt</button><textarea id="src" spellcheck="false" aria-label="Script" placeholder="Paste a timestamped script">${esc(SRC)}</textarea><p class="hint">Drag a caption's right edge to change its length. Later captions move with it and keep their own length.</p>`,
+look:()=>`<p class="hint">Simple mode hides extra tabs. Full controls brings them back. Nothing is removed.</p>`+
+`<div class="rw"><h4>Colour preset</h4><div class="chips">${Object.entries(COL).map(([k,p])=>`<button class="chip" data-col="${k}"><i class="swatch" style="background:${p[1][3]}"></i>${p[0]}</button>`).join('')}</div></div>`+
+rw('Motion pack',Object.entries(MOT).map(([k,p])=>`<button class="chip" data-mot="${k}">${p[0]}</button>`).join(''))+
+rw('Writing format',chp('wf',[['block','Block'],['punch','Punch line'],['stack','Stack'],['lower','Lower third']],S.wf))+
+`<div class="rw"><h4>Move captions</h4><div class="joy" id="joy"><i id="knob" style="left:${50+S.nx/40*36}%;top:${50+S.ny/40*36}%"></i></div><button class="chip" data-a="center">Reset move</button></div>`+
+`<button class="chip" data-a="full">Open full controls</button>`,
+script:()=>`<button class="pri" id="copyP">Copy format prompt</button><textarea id="src" spellcheck="false" aria-label="Script" placeholder="Paste a timestamped script">${esc(SRC)}</textarea><p class="hint">Drag a caption's right edge to change its length. Ripple on moves later captions without shortening them.</p>`+rw('Ripple',chp('ripple',[[1,'On'],[0,'Off']],S.ripple)),
 style:()=>`<div class="pg">${Object.entries(PRE).map(([k,p])=>`<button class="pc${S.pre===k?' on':''}" data-p="${k}" style="background:${p[1][0]};color:${p[1][1]}">Aa<small style="color:${p[1][3]}">${p[0]}</small></button>`).join('')}</div>`+
 rw('Main font',chp('fm',[['inter','Inter'],['bebas','Bebas'],['space','Grotesk']],S.fm))+rw('Accent font',chp('fa',[['instr','Instrument'],['play','Playfair'],['same','Same']],S.fa))+rw('Colour mode',chp('cm',[['n','Normal'],['alt','Alternate'],['rainbow','Rainbow']],S.cm))+rw('Auto keyword',chp('ak',OF,S.ak))+rw('Small grey line',chp('gy',OF,S.gy)),
 motion:()=>rw('Entrance',chp('an',[['blur','Blur'],['mask','Mask rise'],['swipe','Swipe'],['pop','Pop'],['bounce','Bounce'],['slide','Slide up'],['zoom','Zoom'],['swing','Swing'],['glitch','Glitch'],['type','Typewriter'],['fade','Fade'],['kara','Karaoke'],['box','Box']],S.an))+rw('Exit',chp('ex',[['fade','Fade'],['slide','Slide down'],['shrink','Shrink'],['blur','Blur'],['none','Cut']],S.ex))+rw('Reveal speed',chp('rv',[[.6,'Fast'],[.86,'Normal'],[1,'Slow']],S.rv)),
-layout:()=>rw('Aspect',chp('as',[['9:16','9:16'],['16:9','16:9'],['1:1','1:1']],S.as))+rw('Align',chp('al',[['left','Left'],['center','Center'],['right','Right'],['zig','Zigzag']],S.al))+rw('Text position',chp('po',[['c','Centre'],['t','Top'],['b','Bottom']],S.po))+rw('Background',chp('tr',[[0,'Solid'],['video','Footage']],S.tr))+`<div class="rw"><button class="chip" data-a="vid">Import footage</button><button class="chip" data-a="vidx">Remove</button></div><p class="hint">Import the video these captions belong on. Export burns them in and keeps the audio.</p>`+rw('Footage fit',chp('fit',[['cover','Cover'],['contain','Contain']],S.fit))+sl('wc','Words per cut',2,12)+sl('ts','Text size',50,140,'%'),
+layout:()=>rw('Aspect',chp('as',[['9:16','9:16'],['16:9','16:9'],['1:1','1:1']],S.as))+rw('Align',chp('al',[['left','Left'],['center','Center'],['right','Right'],['zig','Zigzag']],S.al))+rw('Text position',chp('po',[['c','Centre'],['t','Top'],['b','Bottom']],S.po))+rw('Writing format',chp('wf',[['block','Block'],['punch','Punch line'],['stack','Stack'],['lower','Lower third']],S.wf))+`<div class="rw"><h4>Move</h4><div class="joy" id="joy"><i id="knob" style="left:${50+S.nx/40*36}%;top:${50+S.ny/40*36}%"></i></div><button class="chip" data-a="center">Reset move</button></div>`+rw('Background',chp('tr',[[0,'Solid'],['video','Footage']],S.tr))+`<div class="rw"><button class="chip" data-a="vid">Import footage</button><button class="chip" data-a="vidx">Remove</button></div><p class="hint">Import the video these captions belong on. Export burns them in and keeps the audio.</p>`+rw('Footage fit',chp('fit',[['cover','Cover'],['contain','Contain']],S.fit))+sl('wc','Words per cut',2,12)+sl('ts','Text size',50,140,'%'),
 shadow:()=>rw('Quick styles',[['none','None'],['soft','Soft'],['lift','Lift'],['hard','Hard'],['long','Long 3D'],['glow','Glow']].map(([k,l])=>`<button class="chip" data-sp="${k}">${l}</button>`).join(''))+rw('Shadow',chp('sh',OF.slice().reverse(),S.sh))+sl('shD','Distance',0,40)+sl('shA','Angle',0,360,'°')+sl('shB','Blur',0,80)+sl('shO','Opacity',0,100,'%')+rw('3D depth (solid)',chp('shX',OF.slice().reverse(),S.shX))+sl('ow','Outline width',0,30)+rw('Colours',`<button class="chip" data-go="sc"><i class="dot" style="background:${C.sc}"></i>Shadow colour</button><button class="chip" data-go="oc"><i class="dot" style="background:${C.oc}"></i>Outline colour</button>`)+`<p class="hint">Text shadow stays on the type. Set image shadow on the image itself.</p>`,
 color:()=>`<div class="chips">${[['c1','Main'],['cg','Small'],['cs','Accent'],['cc','Highlight'],['bg','Background'],['sc','Shadow'],['oc','Outline']].map(([k,l])=>`<button class="chip${tgt===k?' on':''}" data-t="${k}"><i class="dot" style="background:${C[k]}"></i>${l}</button>`).join('')}</div>
 <canvas id="sv" width="360" height="200"></canvas><input type="range" id="hue" min="0" max="360" value="${Math.round(hsv[0])}" aria-label="Hue">
@@ -265,7 +292,7 @@ export:()=>rw('Size',chp('rs',[[1,'1080p']],S.rs))+rw('FPS',chp('fp',[[30,'30'],
 function after(){if(tab==='image')imgs.forEach((m,i)=>{const c=document.querySelector(`canvas[data-t="${i}"]`);if(!c)return;const x=c.getContext('2d'),s=Math.min(44/m.w,44/m.h);x.drawImage(m.bmp,(44-m.w*s)/2,(44-m.h*s)/2,m.w*s,m.h*s)});
 if(tab==='color'){hsv=hex2hsv(C[tgt]);$('hue').value=Math.round(hsv[0]);svDraw();swatches();cct();const sv=$('sv'),mv=e=>{const r=sv.getBoundingClientRect();hsv[1]=cl01((e.clientX-r.left)/r.width);hsv[2]=1-cl01((e.clientY-r.top)/r.height);setC(hsv2hex(hsv[0],hsv[1],hsv[2]),1)};
 sv.onpointerdown=e=>{sv.setPointerCapture(e.pointerId);mv(e);sv.onpointermove=mv};sv.onpointerup=()=>{sv.onpointermove=null;pushRecent()}}
-if(tab==='export'){$('go').onclick=runExport;$('pngLine').onclick=saveLinePng}if(tab==='script'){$('copyP').onclick=copyPrompt}}
+if(tab==='export'){$('go').onclick=runExport;$('pngLine').onclick=saveLinePng}if(tab==='script'){$('copyP').onclick=copyPrompt}if(tab==='look'||tab==='layout')bindJoy()}
 function svDraw(){const c=$('sv');if(!c)return;const x=c.getContext('2d'),w=c.width,h=c.height;x.fillStyle=hsv2hex(hsv[0],1,1);x.fillRect(0,0,w,h);let g=x.createLinearGradient(0,0,w,0);g.addColorStop(0,'#fff');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,w,h);
 g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'#000');x.fillStyle=g;x.fillRect(0,0,w,h);x.beginPath();x.arc(hsv[1]*w,(1-hsv[2])*h,10,0,7);x.lineWidth=3;x.strokeStyle='#fff';x.stroke();x.lineWidth=1;x.strokeStyle='#000';x.stroke()}
 function swatches(){const[h,s,v]=hex2hsv(C[tgt]);const hm=[h+180,h+30,h-30,h+120,h-120,h+150,h+210].map(x=>hsv2hex(((x%360)+360)%360,s,v)),sh=[.35,.55,.75,1,1.2].map(k=>hsv2hex(h,Math.min(1,s*(k<1?1+(1-k)*.4:1/k)),Math.min(1,v*k))),ip=[...new Set(imgs.flatMap(m=>m.pal||[]))].slice(0,12),
@@ -295,7 +322,7 @@ else if(d.a==='eye')new EyeDropper().open().then(r=>{setC(r.sRGBHex);pushRecent(
 else if(d.a==='ac'){tgt='c1';const w=lum('#ffffff')>0?cr('#ffffff',C.bg):0,k=cr('#000000',C.bg);C.c1=w>k?'#ffffff':'#000000';sheet();style()}
 else if(d.a==='addCut'||d.a==='addLine'){const c=cutAt(cur);if(!c)return;pend={si:c.si,ci:d.a==='addCut'?c.ci:-1};$('fi').click()}
 else if(d.a==='addLink'){const u=prompt('Image URL. Gallery upload is more reliable.');if(!u)return;const c=cutAt(cur);pend={si:c?c.si:0,ci:c?c.ci:-1};const im=new Image();im.crossOrigin='anonymous';im.onload=async()=>{try{addImg(await createImageBitmap(im),u.split('/').pop())}catch(x){msg('This link cannot be exported. Upload the image.')}};im.onerror=()=>msg('Link failed. Upload the image.');im.src=u}
-else if(d.a==='vid')$('fv').click();else if(d.a==='vidx'){if(vidUrl)URL.revokeObjectURL(vidUrl);vidUrl='';const v=$('vid');v.pause();v.removeAttribute('src');v.load();if(S.tr==='video')S.tr=0;style()}
+else if(d.col){applyCol(d.col);style()}else if(d.mot){Object.assign(S,MOT[d.mot][1]);sheet();style()}else if(d.a==='center'){S.nx=S.ny=0;style();sheet()}else if(d.a==='full'){S.simple=0;$('full').textContent='Simple';paintTools();openTab('style')}else if(d.a==='vid')$('fv').click();else if(d.a==='vidx'){if(vidUrl)URL.revokeObjectURL(vidUrl);vidUrl='';const v=$('vid');v.pause();v.removeAttribute('src');v.load();if(S.tr==='video')S.tr=0;style()}
 else if(d.a==='del'&&imgs[selI]){imgs.splice(selI,1);selI=imgs.length-1;sheet();struct()}});
 /* export */
 async function save(name,data){if(window.AndroidSaver&&typeof AndroidSaver.start==='function'){const buf=new Uint8Array(await data.arrayBuffer());AndroidSaver.start(name,data.type||'application/octet-stream',buf.length);const size=192*1024;for(let i=0;i<buf.length;i+=size){const slice=buf.subarray(i,Math.min(buf.length,i+size));let bin='';for(let j=0;j<slice.length;j+=0x8000)bin+=String.fromCharCode.apply(null,slice.subarray(j,Math.min(slice.length,j+0x8000)));AndroidSaver.append(btoa(bin));if(i%(size*4)===0){out('Saving '+Math.round(i/Math.max(1,buf.length)*100)+'%');await new Promise(r=>setTimeout(r,0))}}AndroidSaver.finish();return'Saved to Downloads'}
@@ -329,25 +356,26 @@ for(let i=0;i<N;i++){if(vidUrl){const v=$('vid');await new Promise(res=>{const t
 out('Building zip...');bar(1);out(await save('caption-frames-'+W+'x'+H+'-'+fps+'fps.zip',zip(F)))}
 
 const FORMAT_PROMPT = `You are writing a caption script for Caption by d3m0n.in.
-Transcribe the attached video word for word. Do not rewrite, shorten, polish, summarise, or fix grammar. Keep the speaker's exact words, fillers, repeats, and false starts.
+Transcribe the attached video word for word. Do not rewrite, shorten, polish, summarise, translate, or fix grammar. Keep the speaker's exact words, fillers, repeats, and false starts.
 Output only the script. No title, no notes, no code fence, nothing before it, nothing after it.
-One spoken block per line, in this shape:
+One spoken block per line:
 MM:SS - MM:SS: exact words
-Rules for the features this editor reads:
-- Timestamps must match the video. Use MM:SS, or HH:MM:SS if the video is longer than an hour.
-- A line can contain several on-screen captions. Separate them with |
-- Put *asterisks* around a single word for a serif accent. Use this on one real keyword, not every word.
-- Put ^carets^ around a single word for a large bold word.
-- Put _underscores_ around a word or short phrase for a highlight.
-- End a line with [?] or [2] only when that mark is actually spoken or shown. Do not invent icons.
-- Do not wrap the line in quotation marks.
-- Do not add labels, bullets, or a leading asterisk.`;
+Marking rules, strict:
+- Find the one punch line: the sentence where the point, joke, or turn lands. Only that line gets special marking.
+- On that punch line, find the one punching word: the single word the line turns on. Wrap only that word in ^carets^. It is drawn largest. Never mark more than one ^word^ in the whole script.
+- On that same punch line, wrap the short phrase that should change colour in _underscores_. One phrase only. Do not highlight any other line.
+- Use *asterisks* only for one name or product, and not on the punching word.
+- Other lines stay plain.
+- Separate on-screen caption cuts inside a line with |
+- Timestamps must match the video. Use MM:SS, or HH:MM:SS past one hour.
+- End a line with [?] or [2] only when that mark is spoken or shown. Do not invent icons.
+- Do not wrap lines in quotation marks. Do not add labels, bullets, or a leading asterisk.`;
 function copyPrompt(){const done=()=>msg('Format prompt copied');if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(FORMAT_PROMPT).then(done,()=>fallback());else fallback();function fallback(){const ta=document.createElement('textarea');ta.value=FORMAT_PROMPT;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done()}catch(e){msg('Copy failed')}ta.remove()}}
 function fmtT(t){t=Math.max(0,t);const m=Math.floor(t/60),s=Math.floor(t%60);return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
 function writeTimes(){let i=0;SRC=SRC.split('\n').map(l=>{if(!/(\d+):(\d{2}).*[-–—].*(\d+):(\d{2})/.test(l))return l;const g=segs[i++];if(!g)return l;return l.replace(/(\d+:\d{2}(?::\d{2})?)\s*[-–—]+\s*(\d+:\d{2}(?::\d{2})?)/,fmtT(g.s)+' - '+fmtT(g.e))}).join('\n');HOLD=segs.map(g=>{const d=Math.max(.001,g.e-g.s);return g.ch.map(c=>(c.e-c.s)/d)})}
 let drag=null;
 function applyDrag(clientX){const base=drag.base,oldEnd=base[drag.si].ch[drag.ci].e,start=base[drag.si].ch[drag.ci].s,delta=Math.max(start+.2,oldEnd+(clientX-drag.x)/pps)-oldEnd;
-segs.forEach((g,si)=>g.ch.forEach((c,ci)=>{const b=base[si].ch[ci];if(si===drag.si&&ci===drag.ci){c.s=b.s;c.e=b.e+delta}else if(b.s>=oldEnd-.001){c.s=b.s+delta;c.e=b.e+delta}else{c.s=b.s;c.e=b.e}}));
+segs.forEach((g,si)=>g.ch.forEach((c,ci)=>{const b=base[si].ch[ci];if(si===drag.si&&ci===drag.ci){c.s=b.s;c.e=b.e+delta}else if(S.ripple&&b.s>=oldEnd-.001){c.s=b.s+delta;c.e=b.e+delta}else{c.s=b.s;c.e=b.e}}));
 segs.forEach(g=>{g.s=g.ch[0].s;g.e=g.ch[g.ch.length-1].e});total=Math.max(...segs.map(s=>s.e));
 document.querySelectorAll('.cut').forEach(el=>{const c=segs[+el.dataset.si].ch[+el.dataset.ci];el.style.left=c.s*pps+'px';el.style.width=Math.max(8,(c.e-c.s)*pps-2)+'px'});
 $('tlin').style.width=total*pps+'px';redraw(true);msg(fmtT(segs[drag.si].ch[drag.ci].e))}
@@ -356,6 +384,9 @@ window.addEventListener('pointermove',e=>{if(drag)applyDrag(e.clientX)});
 window.addEventListener('pointerup',()=>{if(!drag)return;drag=null;writeTimes();const box=$('src');if(box)box.value=SRC;renderTL()});
 async function saveLinePng(){parse();const c=cutAt(cur);if(!c)return out('Select a caption on the timeline first');const[W,H]=dims(2),cv=document.createElement('canvas');cv.width=W;cv.height=H;const cx=cv.getContext('2d');pngShot=true;draw(cx,W,H,c.s+Math.min(.12,(c.e-c.s)/2));pngShot=false;const blob=await new Promise(r=>cv.toBlob(r,'image/png'));out(await save('caption-by-d3m0n-'+W+'x'+H+'.png',blob))}
 
+
+function bindJoy(){const pad=$('joy'),knob=$('knob');if(!pad||!knob)return;const mv=e=>{const r=pad.getBoundingClientRect();let x=(e.clientX-r.left)/r.width*2-1,y=(e.clientY-r.top)/r.height*2-1,m=Math.hypot(x,y);if(m>1){x/=m;y/=m}S.nx=Math.round(x*40);S.ny=Math.round(y*40);knob.style.left=(50+x*36)+'%';knob.style.top=(50+y*36)+'%';style()};pad.onpointerdown=e=>{pad.setPointerCapture(e.pointerId);mv(e);pad.onpointermove=mv};pad.onpointerup=()=>{pad.onpointermove=null}}
+$('full').onclick=()=>{S.simple=S.simple?0:1;$('full').textContent=S.simple?'Full controls':'Simple';paintTools()};
 /* init */
 $('fv').onchange=()=>{const f=$('fv').files&&$('fv').files[0];$('fv').value='';if(!f)return;if(vidUrl)URL.revokeObjectURL(vidUrl);vidUrl=URL.createObjectURL(f);const v=$('vid');v.src=vidUrl;v.onloadeddata=()=>{S.tr='video';if(v.duration&&isFinite(v.duration))total=Math.max(total,v.duration);struct();msg('Footage ready, '+v.duration.toFixed(1)+'s')};v.load()};
 (function(){const p=PRE.cream;IDS.forEach((id,i)=>C[id]=p[1][i]);parse();setPv();renderTL();fonts()})();
