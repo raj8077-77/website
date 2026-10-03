@@ -106,40 +106,50 @@
       text-align: center;
       box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
     }
-    .raid { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
-    .boot { position: absolute; inset: 0; background: #000; opacity: 0; visibility: hidden; }
-    .boot.on { opacity: 1; visibility: visible; }
-    #matrix { position: absolute; inset: 0; width: 100%; height: 100%; }
-    .term {
-      position: absolute; left: 16px; bottom: 18px; margin: 0; color: #b6ffc8;
-      font: 13px/1.45 ui-monospace, monospace; text-shadow: 0 0 8px #14ff6a; white-space: pre-wrap;
-    }
+    .raid { position: fixed; inset: 0; z-index: 90; pointer-events: none; }
+    .dim { position: absolute; inset: 0; background: rgba(0,0,0,.62); opacity: 0; transition: opacity .35s; }
+    .raid.on .dim { opacity: 1; }
     .lights { position: absolute; inset: 0; opacity: 0; }
-    .lights.on { animation: wash 0.42s steps(2) infinite; }
-    @keyframes wash {
-      0% { background: linear-gradient(90deg, rgba(255,40,40,.38), transparent 46%, rgba(40,90,255,.38)); }
-      100% { background: linear-gradient(90deg, rgba(40,90,255,.38), transparent 46%, rgba(255,40,40,.38)); }
+    .lights span { position: absolute; inset: 0; }
+    .lights .red { background: radial-gradient(circle at 12% 42%, rgba(255,24,24,.85), transparent 48%); }
+    .lights .blue { background: radial-gradient(circle at 88% 42%, rgba(36,92,255,.85), transparent 48%); }
+    .lights.on { opacity: 1; }
+    .lights.on .red { animation: sirenR .36s steps(1) infinite; }
+    .lights.on .blue { animation: sirenB .36s steps(1) infinite; }
+    @keyframes sirenR { 0%, 49% { opacity: 1; } 50%, 100% { opacity: .08; } }
+    @keyframes sirenB { 0%, 49% { opacity: .08; } 50%, 100% { opacity: 1; } }
+    .lane { position: absolute; left: 50%; top: 46%; width: 148vw; height: 56px; margin-left: -74vw; z-index: 3; }
+    .lane.a { transform: rotate(-28deg); }
+    .lane.b { transform: rotate(28deg); }
+    .strip {
+      position: absolute; top: 0; height: 56px; width: 0; overflow: hidden;
+      background: #ffe14a;
+      border-top: 9px solid #111;
+      border-bottom: 9px solid #111;
+      transition: width 1.7s cubic-bezier(.16,.72,.18,1);
+      box-shadow: 0 8px 16px rgba(0,0,0,.4);
     }
-    .tape {
-      position: absolute; left: -8vw; width: 116vw; height: 42px; overflow: hidden;
-      transform: scaleX(0); transform-origin: left center;
-      transition: transform 1.15s cubic-bezier(.2,.8,.2,1);
-      background: repeating-linear-gradient(115deg, #111 0 14px, #f5d90a 14px 28px);
-      box-shadow: 0 8px 18px rgba(0,0,0,.35);
+    .lane.a .strip { left: 0; }
+    .lane.b .strip { right: 0; }
+    .lane.out .strip { width: 148vw; }
+    .strip b {
+      display: block; padding: 16px 0 0 16px; color: #111;
+      font: 800 20px/1 system-ui, sans-serif; letter-spacing: .16em; white-space: nowrap;
     }
-    .tape b {
-      position: absolute; inset: 0; display: flex; align-items: center;
-      color: #111; font: 700 13px/1 system-ui, sans-serif; letter-spacing: .18em;
-      white-space: nowrap;
+    .roll {
+      position: absolute; top: 0; width: 56px; height: 56px; border-radius: 50%; z-index: 2;
+      background: radial-gradient(circle at 35% 35%, #ffe56a, #d4aa00 42%, #1a1a1a 44% 58%, #f0c400 60%);
+      transition: left 1.7s cubic-bezier(.16,.72,.18,1), right 1.7s cubic-bezier(.16,.72,.18,1), transform 1.7s linear;
     }
-    .tape.t1 { top: 18%; }
-    .tape.t2 { bottom: 22%; transform-origin: right center; }
-    .tape.out { transform: scaleX(1) rotate(-7deg); }
-    .tape.t2.out { transform: scaleX(1) rotate(7deg); }
+    .lane.a .roll { left: 0; }
+    .lane.b .roll { right: 0; }
+    .lane.a.out .roll { left: calc(148vw - 56px); transform: rotate(640deg); }
+    .lane.b.out .roll { right: calc(148vw - 56px); transform: rotate(-640deg); }
     .officer {
-      position: absolute; left: 50%; bottom: 0; height: 86vh; width: auto; max-width: 92vw;
-      object-fit: contain; object-position: center bottom; transform: translate(-50%, 110%);
-      transition: transform 1.25s cubic-bezier(.22,.8,.28,1); filter: drop-shadow(0 12px 18px rgba(0,0,0,.45));
+      position: absolute; left: 50%; bottom: -8vh; height: 94vh; width: auto; max-width: 96vw;
+      object-fit: contain; object-position: center bottom; z-index: 4;
+      transform: translate(-50%, 120%); transition: transform 1.7s cubic-bezier(.22,.8,.28,1);
+      filter: drop-shadow(0 16px 18px rgba(0,0,0,.5));
     }
     .officer.up { transform: translate(-50%, 0); }
 
@@ -622,13 +632,10 @@
 
   <div class="hold">Phone upright rakho</div>
   <div class="raid" id="raid" aria-hidden="true">
-    <div class="boot" id="boot">
-      <canvas id="matrix"></canvas>
-      <pre class="term" id="term"></pre>
-    </div>
-    <div class="lights" id="lights"></div>
-    <div class="tape t1" id="tape1"><b></b></div>
-    <div class="tape t2" id="tape2"><b></b></div>
+    <div class="dim"></div>
+    <div class="lights" id="lights"><span class="red"></span><span class="blue"></span></div>
+    <div class="lane a" id="tape1"><i class="roll"></i><div class="strip"><b></b></div></div>
+    <div class="lane b" id="tape2"><i class="roll"></i><div class="strip"><b></b></div></div>
     <img class="officer" id="officer" alt="" src="https://ik.imagekit.io/silentgamers/Picsart_26-10-03_14-11-29-809.png?updatedAt=1791017227196&ik-s=e4645f2f3f7e2d52182b83816f2f7e7b94db7b9d" />
   </div>
   <script src="vault.js"></script>
@@ -722,12 +729,11 @@
     const police = document.getElementById("police");
     const funny = document.getElementById("funny");
     const raid = document.getElementById("raid");
-    const bootEl = document.getElementById("boot");
     const officer = document.getElementById("officer");
-    let busy = false, rain = 0;
-
-    document.getElementById("tape1").firstElementChild.textContent = "CRIME SCENE  ·  DO NOT CROSS  ·  ".repeat(8);
-    document.getElementById("tape2").firstElementChild.textContent = "CRIME SCENE  ·  DO NOT CROSS  ·  ".repeat(8);
+    let busy = false;
+    const label = "CRIME SCENE  ·  DO NOT CROSS  ·  ";
+    document.querySelector("#tape1 b").textContent = label.repeat(10);
+    document.querySelector("#tape2 b").textContent = label.repeat(10);
 
     function setOn(on) {
       toggle.classList.toggle("on", on);
@@ -737,38 +743,12 @@
     function fadeOut(audio) {
       const from = audio.volume || 1, t0 = performance.now();
       function step(now) {
-        const p = Math.min(1, (now - t0) / 700);
+        const p = Math.min(1, (now - t0) / 500);
         audio.volume = from * (1 - p);
         if (p < 1) requestAnimationFrame(step);
         else { audio.pause(); audio.currentTime = 0; audio.volume = 1; }
       }
       requestAnimationFrame(step);
-    }
-    function matrix() {
-      const c = document.getElementById("matrix");
-      const x = c.getContext("2d");
-      c.width = innerWidth; c.height = innerHeight;
-      const cols = Math.max(8, Math.floor(c.width / 16));
-      const y = Array(cols).fill(0);
-      rain = setInterval(function () {
-        x.fillStyle = "rgba(0,0,0,.16)";
-        x.fillRect(0, 0, c.width, c.height);
-        x.fillStyle = "#3dff7a";
-        x.font = "15px monospace";
-        for (let i = 0; i < cols; i++) {
-          x.fillText(String.fromCharCode(0x30A0 + Math.random() * 96), i * 16, y[i] * 18);
-          y[i] = y[i] * 18 > c.height && Math.random() > 0.975 ? 0 : y[i] + 1;
-        }
-      }, 48);
-    }
-    function clearRaid() {
-      clearInterval(rain);
-      bootEl.classList.remove("on");
-      document.getElementById("lights").classList.remove("on");
-      document.getElementById("tape1").classList.remove("out");
-      document.getElementById("tape2").classList.remove("out");
-      officer.classList.remove("up");
-      police.pause();
     }
     function finish() {
       officer.classList.remove("up");
@@ -779,50 +759,40 @@
       setTimeout(function () {
         document.getElementById("tape1").classList.remove("out");
         document.getElementById("tape2").classList.remove("out");
-      }, 280);
+      }, 400);
       setTimeout(function () {
+        raid.classList.remove("on");
         setOn(false);
         funny.currentTime = 0;
         const run = funny.play();
         if (run) run.catch(function () {});
         busy = false;
-      }, 1500);
+      }, 2100);
     }
     function seize() {
-      bootEl.classList.remove("on");
-      clearInterval(rain);
+      raid.classList.add("on");
+      document.getElementById("lights").classList.add("on");
       police.volume = 1;
       police.currentTime = 0;
       const siren = police.play();
       if (siren) siren.catch(function () {});
-      document.getElementById("lights").classList.add("on");
       document.getElementById("tape1").classList.add("out");
-      setTimeout(function () { document.getElementById("tape2").classList.add("out"); }, 180);
+      setTimeout(function () { document.getElementById("tape2").classList.add("out"); }, 220);
+      setTimeout(function () { fadeOut(police); }, 1920);
       setTimeout(function () {
         officer.classList.add("up");
-        fadeOut(police);
         baccha.volume = 1;
         baccha.currentTime = 0;
         const kid = baccha.play();
-        if (kid) kid.then(function () {}).catch(function () { setTimeout(finish, 4000); });
-      }, 900);
+        if (kid) kid.catch(function () { setTimeout(finish, 4000); });
+      }, 2420);
     }
     baccha.addEventListener("ended", function () { if (busy) finish(); });
     toggle.addEventListener("click", function () {
       if (busy || toggle.classList.contains("on")) return;
       busy = true;
       setOn(true);
-      document.getElementById("term").textContent = "";
-      bootEl.classList.add("on");
-      matrix();
-      const lines = ["root@d3m0n:~# status", "LEGAL", "root@d3m0n:~# flip", "ILLEGAL", "[ ok ] black linux active"];
-      let i = 0;
-      const type = setInterval(function () {
-        document.getElementById("term").textContent += lines[i] + "\n";
-        i += 1;
-        if (i >= lines.length) clearInterval(type);
-      }, 320);
-      setTimeout(seize, 1800);
+      seize();
     });
 
     var VIDEO = window.VAULT.homeVideo;
