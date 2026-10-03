@@ -512,8 +512,7 @@
     }
     .proc.on { display: block; }
     .lane.x { display: none; }
-    body.lock { overflow: hidden; }
-    body.lock::before { content: ""; position: fixed; inset: 0; z-index: 80; }
+    body.raid-lock a[href], body.raid-lock .slot { pointer-events: none; }
     body.lock .raid { pointer-events: auto; }
     .channels { margin-top: 12px; margin-bottom: 26px; display: grid; gap: 8px; }
     .channels a {
@@ -659,6 +658,7 @@
             <span class="yp-time" id="ypTime">0:00 / 0:00</span>
             <span class="yp-spacer"></span>
             <button class="yp-ico yp-rate" id="ypRate" type="button">1×</button>
+            <button class="yp-ico yp-skip" id="ypSkip" type="button">Skip</button>
             <button class="yp-ico" id="ypFull" type="button" aria-label="Fullscreen"></button>
           </div>
         </div>
@@ -826,7 +826,7 @@
       document.getElementById("lights").classList.remove("on");
       document.querySelectorAll(".lane").forEach(function (el) { el.classList.remove("out"); });
       raid.classList.remove("on");
-      document.body.classList.remove("lock");
+      document.body.classList.remove("raid-lock");
       police.pause();
       baccha.pause();
       setOn(false);
@@ -843,7 +843,7 @@
       }, 400);
       setTimeout(function () {
         raid.classList.remove("on");
-        document.body.classList.remove("lock");
+        document.body.classList.remove("raid-lock");
         setOn(false);
         funny.currentTime = 0;
         const run = funny.play();
@@ -876,7 +876,8 @@
       if (busy || toggle.classList.contains("on")) return;
       busy = true;
       setOn(true);
-      document.body.classList.add("lock");
+      document.body.classList.add("raid-lock");
+      if (player && player.pauseVideo && player.getPlayerState && player.getPlayerState() === 1) player.pauseVideo();
       const proc = document.getElementById("proc");
       proc.textContent = "";
       proc.classList.add("on");
@@ -1048,6 +1049,13 @@
       rateAt = (rateAt + 1) % rates.length;
       player.setPlaybackRate(rates[rateAt]);
       this.textContent = rates[rateAt] + "×";
+      showChrome();
+    };
+    document.getElementById("ypSkip").onclick = function () {
+      if (!player) return ensure();
+      var t = player.getCurrentTime ? player.getCurrentTime() : 0;
+      player.loadVideoById({ videoId: VIDEO, startSeconds: t });
+      setTimeout(function () { player.loadVideoById({ videoId: VIDEO, startSeconds: t }); forceHD(); }, 80);
       showChrome();
     };
     document.getElementById("ypFull").onclick = function () {
