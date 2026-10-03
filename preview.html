@@ -97,15 +97,12 @@
     .credit b { color:var(--gold); }
     .notice { margin:12px 22px 0; color:#6f6784; font-size:.72rem; line-height:1.4; text-align:center; }
     .hold { display:none; position:fixed; inset:0; z-index:70; place-items:center; background:#07060c; color:var(--gold); letter-spacing:.08em; text-align:center; padding:24px; }
-    @media (orientation:landscape) and (max-height:520px) and (pointer:coarse) {
-      body:not(.fs-on) header, body:not(.fs-on) main { display:none; }
-      body:not(.fs-on) .hold { display:grid; }
-    }
     @media (min-width:980px) and (pointer:fine) {
-      main { width:min(980px, calc(100% - 48px)); }
-      #view { display:grid; grid-template-columns:1.05fr .95fr; gap:22px; align-items:start; }
-      #view .kicker, #view h1 { grid-column:1 / -1; }
-      #view .sheet { margin-top:0; }
+      main { width:min(1100px, calc(100% - 48px)); }
+      #view { display:grid; grid-template-columns: 520px 1fr; gap: 28px; align-items:start; }
+      #view .kicker, #view h1 { grid-column: 1 / -1; }
+      #view .stage, #view .dots { grid-column: 1; position: sticky; top: 78px; }
+      #view .sheet { grid-column: 2; margin-top: 0; }
     }
   </style>
 </head>
@@ -161,6 +158,15 @@
       document.getElementById("ypFull").innerHTML = fsOn() ? exitI : fullI;
       if (st === 0) document.getElementById("ypEnd").classList.remove("off");
     }
+    function forceHD() {
+      if (!player || !player.setPlaybackQuality) return;
+      try { player.setPlaybackQuality("hd1080"); } catch (e) {}
+    }
+    function hideChrome() { clearTimeout(hideT); var c = document.getElementById("ypChrome"); if (c) c.classList.add("hide"); }
+    function burst(id) { var el = document.getElementById(id); if (!el) return; el.classList.add("on"); clearTimeout(el._t); el._t = setTimeout(function () { el.classList.remove("on"); }, 450); }
+    function setVol(n) { vol = Math.max(0, Math.min(100, n)); if (player && player.setVolume) player.setVolume(vol); var f = document.getElementById("ypVolfill"); if (f) f.style.height = vol + "%"; }
+    function setBright(n) { bright = Math.max(30, Math.min(100, n)); var s = document.getElementById("ypShell"); if (s) s.style.filter = "brightness(" + bright + "%)"; var f = document.getElementById("ypBritfill"); if (f) f.style.height = bright + "%"; }
+    function showEnd() { var e = document.getElementById("ypEnd"); if (e) e.classList.remove("off"); }
     function boot() {
       player = new YT.Player("ypYt", {
         videoId: VIDEO, host: "https://www.youtube-nocookie.com",
@@ -245,13 +251,48 @@
         paint();
       };
       document.getElementById("ypSeek").oninput = function () { if (player && player.getDuration()) player.seekTo((this.value / 1000) * player.getDuration(), true); };
-      document.getElementById("ypRate").onclick = function () { if (!player) return; rateAt = (rateAt + 1) % rates.length; player.setPlaybackRate(rates[rateAt]); this.textContent = rates[rateAt] + "×"; };
+      document.getElementById("ypRate").onclick = function () { if (!player) return; rateAt = (rateAt + 1) % rates.length; player.setPlaybackRate(rates[rateAt]); this.textContent = rates[rateAt] + "×"; showChrome(); };
       document.getElementById("ypSkip").onclick = function () {
         if (!player) return ensure();
         var t = player.getCurrentTime ? player.getCurrentTime() : 0;
         player.loadVideoById({ videoId: VIDEO, startSeconds: t });
-        setTimeout(function () { player.loadVideoById({ videoId: VIDEO, startSeconds: t }); }, 80);
+        setTimeout(function () { player.loadVideoById({ videoId: VIDEO, startSeconds: t }); forceHD(); }, 80);
       };
+      document.getElementById("ypHit").onclick = function (e) {
+        var now = Date.now(), box = this.getBoundingClientRect(), z = e.clientX - box.left < box.width * 0.33 ? "l" : e.clientX - box.left > box.width * 0.67 ? "r" : "c";
+        if (now - lastTap < 280 && player) {
+          if (z === "l") { player.seekTo(Math.max(0, player.getCurrentTime() - 10), true); burst("ypFlashL"); }
+          else if (z === "r") { player.seekTo(player.getCurrentTime() + 10, true); burst("ypFlashR"); }
+          else { if (player.getPlayerState() === 1) { player.pauseVideo(); burst("ypFlashC"); } else player.playVideo(); }
+          lastTap = 0; return;
+        }
+        lastTap = now;
+        document.getElementById("ypChrome").classList.contains("hide") ? showChrome() : hideChrome();
+      };
+      var drag = null;
+      document.getElementById("ypHit").addEventListener("touchstart", function (e) {
+        var t = e.changedTouches[0], box = this.getBoundingClientRect(), x = t.clientX - box.left;
+        if (x > box.width * 0.72) drag = { side: "v", y: t.clientY, vol: vol };
+        else if (x < box.width * 0.28) drag = { side: "b", y: t.clientY, bright: bright };
+      }, { passive: true });
+      document.getElementById("ypHit").addEventListener("touchmove", function (e) {
+        if (!drag) return;
+        var dy = drag.y - e.changedTouches[0].clientY;
+        if (drag.side === "v") setVol(drag.vol + dy * 0.5); else setBright(drag.bright + dy * 0.35);
+      }, { passive: true });
+      document.getElementById("ypHit").addEventListener("touchend", function (e) {
+        if (drag) { drag = null; return; }
+        var t = e.changedTouches[0], box = this.getBoundingClientRect(), now = Date.now();
+        var z = t.clientX - box.left < box.width * 0.33 ? "l" : t.clientX - box.left > box.width * 0.67 ? "r" : "c";
+        if (now - lastTap < 280 && player) {
+          if (z === "l") { player.seekTo(Math.max(0, player.getCurrentTime() - 10), true); burst("ypFlashL"); }
+          else if (z === "r") { player.seekTo(player.getCurrentTime() + 10, true); burst("ypFlashR"); }
+          else { if (player.getPlayerState() === 1) { player.pauseVideo(); burst("ypFlashC"); } else player.playVideo(); }
+          lastTap = 0; return;
+        }
+        lastTap = now;
+        document.getElementById("ypChrome").classList.contains("hide") ? showChrome() : hideChrome();
+      });
       document.getElementById("ypHit").addEventListener("touchend", function (e) {
         var t = e.changedTouches[0], box = this.getBoundingClientRect(), now = Date.now();
         var z = t.clientX - box.left < box.width * 0.33 ? "l" : t.clientX - box.left > box.width * 0.67 ? "r" : "c";
