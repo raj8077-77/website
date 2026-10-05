@@ -340,7 +340,7 @@
       border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; font: inherit;
     }
     body.pick-lock { overflow: hidden; }
-    .pick-dim { position: fixed; inset: 0; z-index: 19; background: rgba(0,0,0,.46); opacity: 0; pointer-events: none; transition: opacity .2s; }
+    .pick-dim { position: fixed; left: 0; right: 0; bottom: 0; top: 0; z-index: 18; background: rgba(0,0,0,.62); opacity: 0; pointer-events: none; transition: opacity .2s; }
     .pick-dim.on { opacity: 1; pointer-events: auto; }
     .offer { display: block; margin: 0; padding: 14px; border: 1px solid rgba(228,197,106,.4); border-radius: 16px; background: rgba(124,58,237,.16); }
     .offer b { display: block; margin-top: 4px; font-size: 1.05rem; }
@@ -466,9 +466,11 @@
 
     .yp-stage { position: absolute; inset: 0; overflow: hidden; background: #000; }
     .yp #ypYt, .yp #ypYt iframe { position: absolute; border: 0; pointer-events: none; }
-    .yp #ypYt { left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; }
-    .yp #ypYt iframe { width: 100%; height: 100%; transform: scale(1.32); transform-origin: center center; }
-    .yp-veil-top, .yp-veil-bot { display: none; }
+    .yp #ypYt { left: 0; width: 100%; top: -46px; height: calc(100% + 92px); }
+    .yp #ypYt iframe { left: 0; top: 0; width: 100%; height: 100%; transform: none; }
+    .yp-veil-top, .yp-veil-bot { position: absolute; left: 0; right: 0; z-index: 2; pointer-events: none; background: #000; display: block; }
+    .yp-veil-top { top: 0; height: 10px; }
+    .yp-veil-bot { bottom: 0; height: 12px; }
     .yp-hit { position: absolute; inset: 0; z-index: 3; }
     .yp-flash, .yp-meter { position: absolute; z-index: 6; display: none; pointer-events: none; }
     .yp-flash, .yp-flash.on { display: none !important; }
@@ -514,8 +516,8 @@
     .yp-spacer { flex: 1; }
     .yp-rate { width: auto; padding: 0 8px; border-radius: 999px; font: inherit; font-size: 12px; }
 
-    .shelf-bar { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; }
-    .picker-wrap { margin: 0 0 0 auto; }
+    .shelf-bar { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; position: relative; z-index: 30; }
+    .picker-wrap { margin: 0 0 0 auto; position: relative; z-index: 30; }
     .menu { left: auto; right: 0; transform: none; }
     .slot { position: relative; }
     .slot .mx { position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 1 / 1.15; pointer-events: none; opacity: 0; }
@@ -740,6 +742,14 @@
       document.body.classList.remove("pick-lock");
       document.getElementById("pickDim").classList.remove("on");
     }
+    function openMenu(open) {
+      menu.classList.toggle("open", open);
+      numBox.classList.toggle("open", open);
+      document.body.classList.toggle("pick-lock", open);
+      var dim = document.getElementById("pickDim");
+      dim.classList.toggle("on", open);
+      if (open) dim.style.top = Math.ceil(document.querySelector(".shelf-bar").getBoundingClientRect().bottom) + "px";
+    }
     function near(q, name) {
       q = q.toLowerCase().trim();
       name = name.toLowerCase();
@@ -800,10 +810,7 @@
     });
 
     numBox.addEventListener("click", () => {
-      const open = menu.classList.toggle("open");
-      numBox.classList.toggle("open", open);
-      document.body.classList.toggle("pick-lock", open);
-      document.getElementById("pickDim").classList.toggle("on", open);
+      openMenu(!menu.classList.contains("open"));
     });
     document.getElementById("pickDim").addEventListener("click", closeMenu);
     document.addEventListener("touchmove", function (e) {
@@ -1192,10 +1199,10 @@
       if (!document.fullscreenElement) landOff(document.getElementById("ypShell"));
       paint();
     });
-    document.getElementById("ypHit").addEventListener("click", function (e) {
+    var fromTouch = 0;
+    function tapPlayer(x, w) {
       var now = Date.now();
-      var box = this.getBoundingClientRect();
-      var z = zone(e.clientX - box.left, box.width);
+      var z = zone(x, w);
       if (now - lastTap < 280 && player) {
         if (z === "l") player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
         else if (z === "r") player.seekTo(player.getCurrentTime() + 10, true);
@@ -1208,6 +1215,11 @@
       }
       lastTap = now;
       document.getElementById("ypChrome").classList.contains("hide") ? showChrome() : hideChrome();
+    }
+    document.getElementById("ypHit").addEventListener("click", function (e) {
+      if (Date.now() - fromTouch < 700) return;
+      var box = this.getBoundingClientRect();
+      tapPlayer(e.clientX - box.left, box.width);
     });
     var drag = null;
     document.getElementById("ypHit").addEventListener("touchstart", function (e) {
@@ -1223,23 +1235,11 @@
       else setBright(drag.bright + dy * 0.35);
     }, { passive: true });
     document.getElementById("ypHit").addEventListener("touchend", function (e) {
+      fromTouch = Date.now();
       if (drag) { drag = null; return; }
       var t = e.changedTouches[0];
       var box = this.getBoundingClientRect();
-      var now = Date.now();
-      var z = zone(t.clientX - box.left, box.width);
-      if (now - lastTap < 280 && player) {
-        if (z === "l") player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
-        else if (z === "r") player.seekTo(player.getCurrentTime() + 10, true);
-        else {
-          if (player.getPlayerState() === 1) player.pauseVideo();
-          else { document.getElementById("ypCurtain").classList.add("off"); player.playVideo(); }
-        }
-        lastTap = 0;
-        return;
-      }
-      lastTap = now;
-      document.getElementById("ypChrome").classList.contains("hide") ? showChrome() : hideChrome();
+      tapPlayer(t.clientX - box.left, box.width);
     });
     document.getElementById("ypBritfill").style.height = "100%";
     document.getElementById("ypVolfill").style.height = "100%";
