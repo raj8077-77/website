@@ -32,7 +32,13 @@
     .brand { text-align: center; font-family: system-ui, sans-serif; font-weight: 760; letter-spacing: 0.04em; font-size: 1.05rem; color: #fff; text-shadow: 0 1px 6px #000; }
     .brand b { color: #c4b5fd; font-weight: 760; }
     main { width:min(720px,100%); margin:0 auto; padding:18px 14px calc(92px + env(safe-area-inset-bottom)); }
-    .buybar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: rgba(7,6,12,.94); backdrop-filter: blur(16px); border-top: 1px solid rgba(228,197,106,.28); }
+    .buybar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: rgba(7,6,12,.94); backdrop-filter: blur(16px); border-top: 1px solid rgba(228,197,106,.28); }
+    .buybar a.gareeb { background: #c1121f; color: #fff; pointer-events: none; }
+    .shade { position: fixed; left: 0; right: 0; top: 0; bottom: 72px; z-index: 35; background: rgba(0,0,0,.55); opacity: 0; pointer-events: none; transition: opacity .3s; }
+    .shade.on { opacity: 1; }
+    .beggar { position: fixed; right: 0; bottom: 64px; z-index: 40; height: 64vh; width: auto; max-width: 78vw; object-fit: contain; object-position: right bottom; transform: translateY(110%); transition: transform .7s cubic-bezier(.22,.8,.28,1); pointer-events: none; }
+    .beggar.up { transform: translateY(0); }
+    body.scene .back, body.scene #buyNow { pointer-events: none; opacity: .4; }
     .buybar a, .buybar button { flex: 1; border: 0; border-radius: 14px; padding: 12px 10px; font: inherit; font-weight: 700; text-align: center; cursor: pointer; }
     .buybar a { background: linear-gradient(180deg,#8b5cf6,#7c3aed); color: #fff; }
     .buybar button { background: #1c1430; color: var(--gold); border: 1px solid rgba(228,197,106,.45); }
@@ -66,11 +72,9 @@
     .yp:fullscreen, .yp:-webkit-full-screen, .yp.force-land { width:100%; height:100%; max-width:none; border-radius:0; aspect-ratio:auto; }
     .yp.force-land { position:fixed; z-index:80; width:100vh; height:100vw; top:50%; left:50%; transform:translate(-50%,-50%) rotate(90deg); }
     .yp-stage { position:absolute; inset:0; overflow:hidden; background:#000; }
-    .yp #ypYt, .yp #cpYt { position: absolute; left: 0; width: 100%; top: -42px; height: calc(100% + 84px); border: 0; pointer-events: none; }
-    .yp #ypYt iframe, .yp #cpYt iframe { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
-    .yp-veil-top, .yp-veil-bot { position: absolute; left: 0; right: 0; z-index: 2; pointer-events: none; background: #000; }
-    .yp-veil-top { top: 0; height: 28px; }
-    .yp-veil-bot { bottom: 0; height: 34px; }
+    .yp #ypYt, .yp #cpYt { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; pointer-events: none; overflow: hidden; }
+    .yp #ypYt iframe, .yp #cpYt iframe { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; pointer-events: none; transform: scale(1.32); transform-origin: center center; }
+    .yp-veil-top, .yp-veil-bot { display: none; }
     .yp-hit { position:absolute; inset:0; z-index:3; }
     .yp-flash, .yp-meter { position:absolute; z-index:6; display:none; pointer-events:none; }
     .yp-flash, .yp-flash.on { display: none !important; }
@@ -136,6 +140,8 @@
     <p class="notice" id="notice"></p>
   </main>
   <audio id="garweb" preload="auto" src="garweb.mp3"></audio>
+  <div class="shade" id="shade"></div>
+  <img class="beggar" id="beggar" alt="" src="https://ik.imagekit.io/silentgamers/Picsart_26-10-05_22-40-39-084.png?updatedAt=1791220477763&ik-s=746bfbbce6ae986e28d84d20f412f4bfa9a96f44">
   <footer class="buybar">
     <a id="buyNow" href="buy.html">Buy now <b id="buyPrice"></b></a>
     <button id="buyFree" type="button">Buy for free</button>
@@ -352,6 +358,7 @@
       };
       var drag = null;
       document.getElementById("ypHit").addEventListener("touchstart", function (e) {
+        if (!fsOn()) return;
         var t = e.changedTouches[0], box = this.getBoundingClientRect(), x = t.clientX - box.left;
         if (x > box.width * 0.72) drag = { side: "v", y: t.clientY, vol: vol };
         else if (x < box.width * 0.28) drag = { side: "b", y: t.clientY, bright: bright };
@@ -380,11 +387,24 @@
     document.addEventListener("wheel", function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
     if (screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(function () {});
     document.getElementById("buyFree").onclick = function () {
+      if (player && player.pauseVideo) player.pauseVideo();
+      var buy = document.getElementById("buyNow");
+      buy.classList.add("gareeb");
+      buy.textContent = "Gareeb";
+      document.body.classList.add("scene");
+      document.getElementById("shade").classList.add("on");
+      document.getElementById("beggar").classList.add("up");
       var a = document.getElementById("garweb");
       a.currentTime = 0;
       var run = a.play();
       if (run) run.catch(function () {});
     };
+    document.getElementById("garweb").addEventListener("ended", function () {
+      document.getElementById("beggar").classList.remove("up");
+      document.getElementById("shade").classList.remove("on");
+      document.body.classList.remove("scene");
+      render();
+    });
     window.addEventListener("hashchange", function () { player = null; render(); });
     if (!location.hash) history.replaceState(null, "", "#1");
     render();
