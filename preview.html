@@ -33,7 +33,7 @@
     .brand b { color: #c4b5fd; font-weight: 760; }
     main { width:min(720px,100%); margin:0 auto; padding:18px 14px calc(92px + env(safe-area-inset-bottom)); }
     .buybar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: rgba(7,6,12,.94); backdrop-filter: blur(16px); border-top: 1px solid rgba(228,197,106,.28); }
-    .buybar a.gareeb { background: #c1121f; color: #fff; pointer-events: none; }
+    .buybar a.gareeb, .buybar button.gareeb { background: #c1121f; color: #fff; pointer-events: none; }
     .shade { position: fixed; left: 0; right: 0; top: 0; bottom: 72px; z-index: 35; background: rgba(0,0,0,.55); opacity: 0; pointer-events: none; transition: opacity .3s; }
     .shade.on { opacity: 1; }
     .beggar { position: fixed; right: 0; bottom: 64px; z-index: 40; height: 64vh; width: auto; max-width: 78vw; object-fit: contain; object-position: right bottom; transform: translateY(110%); transition: transform .7s cubic-bezier(.22,.8,.28,1); pointer-events: none; }
@@ -72,9 +72,11 @@
     .yp:fullscreen, .yp:-webkit-full-screen, .yp.force-land { width:100%; height:100%; max-width:none; border-radius:0; aspect-ratio:auto; }
     .yp.force-land { position:fixed; z-index:80; width:100vh; height:100vw; top:50%; left:50%; transform:translate(-50%,-50%) rotate(90deg); }
     .yp-stage { position:absolute; inset:0; overflow:hidden; background:#000; }
-    .yp #ypYt, .yp #cpYt { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; pointer-events: none; overflow: hidden; }
-    .yp #ypYt iframe, .yp #cpYt iframe { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; pointer-events: none; transform: scale(1.32); transform-origin: center center; }
-    .yp-veil-top, .yp-veil-bot { display: none; }
+    .yp #ypYt, .yp #cpYt { position: absolute; left: 0; width: 100%; top: -46px; height: calc(100% + 92px); border: 0; pointer-events: none; overflow: hidden; }
+    .yp #ypYt iframe, .yp #cpYt iframe { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; pointer-events: none; transform: none; }
+    .yp-veil-top, .yp-veil-bot { position: absolute; left: 0; right: 0; z-index: 2; pointer-events: none; background: #000; display: block; }
+    .yp-veil-top { top: 0; height: 10px; }
+    .yp-veil-bot { bottom: 0; height: 12px; }
     .yp-hit { position:absolute; inset:0; z-index:3; }
     .yp-flash, .yp-meter { position:absolute; z-index:6; display:none; pointer-events:none; }
     .yp-flash, .yp-flash.on { display: none !important; }
@@ -345,8 +347,10 @@
       };
       document.getElementById("ypSeek").oninput = function () { if (player && player.getDuration()) player.seekTo((this.value / 1000) * player.getDuration(), true); };
       document.getElementById("ypRate").onclick = function () { if (!player) return; rateAt = (rateAt + 1) % rates.length; player.setPlaybackRate(rates[rateAt]); this.textContent = rates[rateAt] + "×"; showChrome(); };
-      document.getElementById("ypHit").onclick = function (e) {
-        var now = Date.now(), box = this.getBoundingClientRect(), z = e.clientX - box.left < box.width * 0.33 ? "l" : e.clientX - box.left > box.width * 0.67 ? "r" : "c";
+      var fromTouch = 0;
+      function tapPlayer(x, w) {
+        var now = Date.now();
+        var z = x < w * 0.33 ? "l" : x > w * 0.67 ? "r" : "c";
         if (now - lastTap < 280 && player) {
           if (z === "l") player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
           else if (z === "r") player.seekTo(player.getCurrentTime() + 10, true);
@@ -355,6 +359,11 @@
         }
         lastTap = now;
         document.getElementById("ypChrome").classList.contains("hide") ? showChrome() : hideChrome();
+      }
+      document.getElementById("ypHit").onclick = function (e) {
+        if (Date.now() - fromTouch < 700) return;
+        var box = this.getBoundingClientRect();
+        tapPlayer(e.clientX - box.left, box.width);
       };
       var drag = null;
       document.getElementById("ypHit").addEventListener("touchstart", function (e) {
@@ -369,17 +378,10 @@
         if (drag.side === "v") setVol(drag.vol + dy * 0.5); else setBright(drag.bright + dy * 0.35);
       }, { passive: true });
       document.getElementById("ypHit").addEventListener("touchend", function (e) {
+        fromTouch = Date.now();
         if (drag) { drag = null; return; }
-        var t = e.changedTouches[0], box = this.getBoundingClientRect(), now = Date.now();
-        var z = t.clientX - box.left < box.width * 0.33 ? "l" : t.clientX - box.left > box.width * 0.67 ? "r" : "c";
-        if (now - lastTap < 280 && player) {
-          if (z === "l") player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
-          else if (z === "r") player.seekTo(player.getCurrentTime() + 10, true);
-          else { if (player.getPlayerState() === 1) player.pauseVideo(); else player.playVideo(); }
-          lastTap = 0; return;
-        }
-        lastTap = now;
-        document.getElementById("ypChrome").classList.contains("hide") ? showChrome() : hideChrome();
+        var t = e.changedTouches[0], box = this.getBoundingClientRect();
+        tapPlayer(t.clientX - box.left, box.width);
       });
     }
     document.addEventListener("fullscreenchange", function () { if (!document.fullscreenElement) landOff(shell()); paint(); });
@@ -388,9 +390,9 @@
     if (screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(function () {});
     document.getElementById("buyFree").onclick = function () {
       if (player && player.pauseVideo) player.pauseVideo();
-      var buy = document.getElementById("buyNow");
-      buy.classList.add("gareeb");
-      buy.textContent = "Gareeb";
+      var free = document.getElementById("buyFree");
+      free.classList.add("gareeb");
+      free.textContent = "Gareeb";
       document.body.classList.add("scene");
       document.getElementById("shade").classList.add("on");
       document.getElementById("beggar").classList.add("up");
@@ -403,7 +405,9 @@
       document.getElementById("beggar").classList.remove("up");
       document.getElementById("shade").classList.remove("on");
       document.body.classList.remove("scene");
-      render();
+      var free = document.getElementById("buyFree");
+      free.classList.remove("gareeb");
+      free.textContent = "Buy for free";
     });
     window.addEventListener("hashchange", function () { player = null; render(); });
     if (!location.hash) history.replaceState(null, "", "#1");
