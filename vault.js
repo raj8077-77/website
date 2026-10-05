@@ -5,11 +5,17 @@ window.VAULT = {
   "homeVideo": "fs10aqFTj8I",
   "igBroadcast": "https://www.instagram.com/d3m0n.in/",
   "tgChannel": "https://t.me/d3m0n_in",
+  "offer": 1,
   "items": [
     {
       "n": 1,
       "name": "ESP32",
       "price": "₹450",
+      "market": "₹699",
+      "shops": [
+        { "name": "Robu", "price": "₹549", "href": "https://robu.in" },
+        { "name": "Amazon", "price": "₹699", "href": "https://www.amazon.in" }
+      ],
       "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/ESP32_Dev_Board.jpg?width=900",
       "description": "Espressif Wi-Fi and Bluetooth board used in class labs for GPIO, serial, and small sensor projects on your own bench.",
       "media": [
@@ -45,6 +51,11 @@ window.VAULT = {
       "n": 2,
       "name": "Flipper Zero",
       "price": "₹18,000",
+      "market": "₹24,000",
+      "shops": [
+        { "name": "Flipper shop", "price": "₹22,500", "href": "https://shop.flipperzero.one" },
+        { "name": "Amazon", "price": "₹24,000", "href": "https://www.amazon.in" }
+      ],
       "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Flipper_Zero.jpg?width=900",
       "description": "Pocket lab tool for reading RFID, infrared, and sub-GHz signals on devices you own. Not for other people's locks or cards.",
       "media": [
@@ -80,6 +91,11 @@ window.VAULT = {
       "n": 3,
       "name": "Raspberry Pi 4",
       "price": "₹5,500",
+      "market": "₹7,200",
+      "shops": [
+        { "name": "Robu", "price": "₹6,400", "href": "https://robu.in" },
+        { "name": "Amazon", "price": "₹7,200", "href": "https://www.amazon.in" }
+      ],
       "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Raspberry_Pi_4_Model_B_-_Top.jpg?width=900",
       "description": "Small Linux computer for networking labs, Python, and desktop lessons. Official board photo, 4 GB class Pi 4.",
       "media": [
@@ -115,6 +131,11 @@ window.VAULT = {
       "n": 4,
       "name": "Arduino Uno",
       "price": "₹850",
+      "market": "₹1,200",
+      "shops": [
+        { "name": "Robocraze", "price": "₹980", "href": "https://robocraze.com" },
+        { "name": "Amazon", "price": "₹1,200", "href": "https://www.amazon.in" }
+      ],
       "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Arduino_uno_r3.jpg?width=900",
       "description": "ATmega328 board for the first blink sketch, serial prints, and simple sensor labs. USB-B cable required.",
       "media": [
