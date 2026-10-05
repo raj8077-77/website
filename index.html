@@ -320,17 +320,31 @@
       display: none;
       position: absolute;
       top: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%);
-      min-width: 220px;
+      right: 0;
+      left: auto;
+      transform: none;
+      width: min(280px, 78vw);
+      max-height: 46vh;
+      overflow: auto;
       background: #100e16;
       border: 1px solid rgba(228, 197, 106, 0.35);
       border-radius: 14px;
       padding: 6px;
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+      z-index: 30;
     }
-
     .menu.open { display: block; }
+    .menu input {
+      width: 100%; position: sticky; top: 0; z-index: 1;
+      border: 1px solid rgba(228,197,106,.28); background: #0c0a12; color: #fff;
+      border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; font: inherit;
+    }
+    body.pick-lock { overflow: hidden; }
+    .pick-dim { position: fixed; inset: 0; z-index: 19; background: rgba(0,0,0,.46); opacity: 0; pointer-events: none; transition: opacity .2s; }
+    .pick-dim.on { opacity: 1; pointer-events: auto; }
+    .offer { display: block; margin: 0; padding: 14px; border: 1px solid rgba(228,197,106,.4); border-radius: 16px; background: rgba(124,58,237,.16); }
+    .offer b { display: block; margin-top: 4px; font-size: 1.05rem; }
+    .offer span { color: var(--gold); }
 
     .menu button {
       width: 100%;
@@ -452,11 +466,9 @@
 
     .yp-stage { position: absolute; inset: 0; overflow: hidden; background: #000; }
     .yp #ypYt, .yp #ypYt iframe { position: absolute; border: 0; pointer-events: none; }
-    .yp #ypYt { left: 0; width: 100%; top: -42px; height: calc(100% + 84px); }
-    .yp #ypYt iframe { width: 100%; height: 100%; }
-    .yp-veil-top, .yp-veil-bot { position: absolute; left: 0; right: 0; z-index: 2; pointer-events: none; background: #000; }
-    .yp-veil-top { top: 0; height: 28px; }
-    .yp-veil-bot { bottom: 0; height: 34px; }
+    .yp #ypYt { left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; }
+    .yp #ypYt iframe { width: 100%; height: 100%; transform: scale(1.32); transform-origin: center center; }
+    .yp-veil-top, .yp-veil-bot { display: none; }
     .yp-hit { position: absolute; inset: 0; z-index: 3; }
     .yp-flash, .yp-meter { position: absolute; z-index: 6; display: none; pointer-events: none; }
     .yp-flash, .yp-flash.on { display: none !important; }
@@ -556,7 +568,7 @@
         align-items: start;
       }
       .profile { grid-row: 1 / span 5; position: sticky; top: 88px; }
-      .shelf, .yp, .channels, .notice { grid-column: 2; min-width: 0; }
+      .shelf, .yp, .channels, #offer, .notice { grid-column: 2; min-width: 0; }
       .shelf-bar { justify-content: space-between; }
       .stage { padding: 14px 0 8px; }
       .slot { flex: 0 0 300px; }
@@ -642,12 +654,13 @@
         </button>
         <div class="picker-wrap">
           <button class="num-box" id="numBox" type="button">#1</button>
-          <div class="menu" id="menu"></div>
+          <div class="menu" id="menu"><input id="find" type="search" placeholder="Search product" autocomplete="off"></div>
         </div>
       </div>
       <audio id="baccha" preload="auto" src="baccha.mp3"></audio>
       <audio id="police" preload="auto" src="police.mp3"></audio>
       <audio id="funny" preload="auto" src="funny.mp3"></audio>
+      <audio id="going" preload="auto" src="going.mp3"></audio>
 
     <div class="stage" id="stage"><div class="track" id="track"></div><pre class="proc" id="proc"></pre></div>
     <hr class="sep" />
@@ -679,8 +692,10 @@
       </div>
     </div>
     <div class="channels" id="channels"></div>
+    <div id="offer"></div>
     <p class="notice" id="notice"></p>
   </main>
+  <div class="pick-dim" id="pickDim"></div>
 
   <div class="raid" id="raid" aria-hidden="true">
     <div class="dim"></div>
@@ -697,6 +712,13 @@
   <script>
     const ICON = window.VAULT.icon;
     document.getElementById("notice").textContent = window.VAULT.disclaimer;
+    (function () {
+      var n = window.VAULT.offer;
+      var hit = window.VAULT.items.filter(function (it) { return it.n === n; })[0];
+      var box = document.getElementById("offer");
+      if (!hit) { box.innerHTML = ""; return; }
+      box.innerHTML = '<hr class="sep"><a class="offer" href="preview.html#' + hit.n + '"><span>Latest offer</span><b>#' + hit.n + ' ' + hit.name + '</b><span>' + (hit.price || "") + '</span></a><hr class="sep">';
+    })();
     document.getElementById("channels").innerHTML =
       '<a href="' + window.VAULT.igBroadcast + '" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/></svg><span><b>Broadcast channel</b><span>Instagram</span></span></a>' +
       '<a href="' + window.VAULT.tgChannel + '" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.8 4.3 2.9 11.6c-1.3.5-1.3 1.2-.2 1.5l4.8 1.5 1.9 5.8c.2.7.1.9.8.9.5 0 .7-.2 1-.5l2.7-2.6 5.6 4.1c1 .6 1.8.3 2-.9l3.6-16.2c.3-1.4-.5-2-1.3-1.6z"/></svg><span><b>Telegram channel</b><span>Telegram</span></span></a>';
@@ -715,6 +737,22 @@
     function closeMenu() {
       menu.classList.remove("open");
       numBox.classList.remove("open");
+      document.body.classList.remove("pick-lock");
+      document.getElementById("pickDim").classList.remove("on");
+    }
+    function near(q, name) {
+      q = q.toLowerCase().trim();
+      name = name.toLowerCase();
+      if (!q || name.indexOf(q) >= 0) return true;
+      function dist(a, b) {
+        var d = [];
+        for (var i = 0; i <= a.length; i++) {
+          d[i] = [i];
+          for (var j = 1; j <= b.length; j++) d[i][j] = i ? Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)) : j;
+        }
+        return d[a.length][b.length];
+      }
+      return name.split(/\s+/).some(function (w) { return dist(q, w) <= 2; }) || dist(q, name) <= 2;
     }
 
     function go(i, animate) {
@@ -754,11 +792,25 @@
       b.addEventListener("click", () => { closeMenu(); go(i); });
       menu.appendChild(b);
     });
+    document.getElementById("find").addEventListener("input", function () {
+      var q = this.value;
+      menu.querySelectorAll("button").forEach(function (b, n) {
+        b.style.display = near(q, products[n].title) ? "" : "none";
+      });
+    });
 
     numBox.addEventListener("click", () => {
       const open = menu.classList.toggle("open");
       numBox.classList.toggle("open", open);
+      document.body.classList.toggle("pick-lock", open);
+      document.getElementById("pickDim").classList.toggle("on", open);
     });
+    document.getElementById("pickDim").addEventListener("click", closeMenu);
+    document.addEventListener("touchmove", function (e) {
+      if (!document.body.classList.contains("pick-lock")) return;
+      if (e.target.closest(".menu")) return;
+      e.preventDefault();
+    }, { passive: false });
 
     document.addEventListener("click", (e) => {
       if (!e.target.closest(".picker-wrap")) closeMenu();
@@ -868,6 +920,10 @@
       baccha.pause();
       baccha.currentTime = 0;
       document.getElementById("lights").classList.remove("on");
+      var going = document.getElementById("going");
+      going.currentTime = 0;
+      var leave = going.play();
+      if (leave) leave.catch(function () {});
       setTimeout(function () {
         document.querySelectorAll(".lane").forEach(function (el) { el.classList.remove("out"); });
       }, 400);
@@ -1155,6 +1211,7 @@
     });
     var drag = null;
     document.getElementById("ypHit").addEventListener("touchstart", function (e) {
+      if (!fsOn()) return;
       var t = e.changedTouches[0], box = this.getBoundingClientRect(), x = t.clientX - box.left;
       if (x > box.width * 0.72) drag = { side: "v", y: t.clientY, vol: vol };
       else if (x < box.width * 0.28) drag = { side: "b", y: t.clientY, bright: bright };
