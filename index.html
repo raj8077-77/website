@@ -283,8 +283,8 @@
     .picker-wrap {
       position: relative;
       display: flex;
-      justify-content: center;
-      margin-bottom: 14px;
+      justify-content: flex-end;
+      margin: 0 0 0 auto;
       z-index: 5;
     }
 
@@ -459,7 +459,7 @@
     .yp-veil-bot { bottom: 0; height: 34px; }
     .yp-hit { position: absolute; inset: 0; z-index: 3; }
     .yp-flash, .yp-meter { position: absolute; z-index: 6; display: none; pointer-events: none; }
-    .yp-flash.on, .yp-meter.on { display: grid; }
+    .yp-flash, .yp-flash.on { display: none !important; }
     .yp-flash {
       top: 44%; place-items: center; min-width: 54px; height: 28px; padding: 0 10px;
       border-radius: 999px; background: rgba(124,58,237,.92); font-size: 13px; font-weight: 720;
@@ -502,7 +502,9 @@
     .yp-spacer { flex: 1; }
     .yp-rate { width: auto; padding: 0 8px; border-radius: 999px; font: inherit; font-size: 12px; }
 
-    .shelf-bar { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
+    .shelf-bar { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; }
+    .picker-wrap { margin: 0 0 0 auto; }
+    .menu { left: auto; right: 0; transform: none; }
     .slot { position: relative; }
     .slot .mx { position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 1 / 1.15; pointer-events: none; opacity: 0; }
     .slot.flip .mx { opacity: .9; }
@@ -539,20 +541,27 @@
       line-height: 1.55;
       text-align: left;
     }
-    @media (min-width: 980px) and (pointer: fine) {
-      body { display: block; }
+    @media (min-width: 1024px) {
+      header {
+        grid-template-columns: 56px 1fr 56px;
+        padding: 12px 36px 12px;
+      }
       main {
-        width: min(1120px, calc(100% - 56px));
+        width: 100%;
+        max-width: none;
+        padding: 28px 40px 52px;
         display: grid;
-        grid-template-columns: 320px 1fr;
-        gap: 18px 28px;
+        grid-template-columns: 340px minmax(0, 1fr);
+        gap: 20px 40px;
         align-items: start;
       }
-      .profile { grid-row: 1 / span 5; position: sticky; top: 74px; }
-      .shelf, .yp, .channels, .notice { grid-column: 2; }
-      .shelf-bar { justify-content: flex-end; }
-      .track { display: grid !important; grid-template-columns: 1fr 1fr; transform: none !important; }
-      .slot, .slot.main { opacity: 1; transform: none; flex: none; }
+      .profile { grid-row: 1 / span 5; position: sticky; top: 88px; }
+      .shelf, .yp, .channels, .notice { grid-column: 2; min-width: 0; }
+      .shelf-bar { justify-content: space-between; }
+      .stage { padding: 14px 0 8px; }
+      .slot { flex: 0 0 300px; }
+      .channels { grid-template-columns: 1fr 1fr; }
+      .yp { border-radius: 18px; }
       .lane.x { display: block; }
       .lane.c { top: 18%; transform: rotate(-8deg); }
       .lane.d { top: 74%; transform: rotate(10deg); }
@@ -560,6 +569,15 @@
       .lane.f { top: 62%; transform: rotate(-40deg); }
       .officer { left: auto; right: 3vw; bottom: -6vh; transform: translate(130%, 0); }
       .officer.up { transform: translate(0, 0); }
+    }
+    @media (min-width: 1440px) {
+      header { padding: 14px 56px 14px; }
+      main {
+        padding: 36px 64px 64px;
+        grid-template-columns: 380px minmax(0, 1fr);
+        gap: 24px 56px;
+      }
+      .slot { flex: 0 0 340px; }
     }
   </style>
 </head>
@@ -622,15 +640,15 @@
             </svg>
           </span>
         </button>
+        <div class="picker-wrap">
+          <button class="num-box" id="numBox" type="button">#1</button>
+          <div class="menu" id="menu"></div>
+        </div>
       </div>
       <audio id="baccha" preload="auto" src="baccha.mp3"></audio>
       <audio id="police" preload="auto" src="police.mp3"></audio>
       <audio id="funny" preload="auto" src="funny.mp3"></audio>
 
-    <div class="picker-wrap">
-      <button class="num-box" id="numBox" type="button">#1</button>
-      <div class="menu" id="menu"></div>
-    </div>
     <div class="stage" id="stage"><div class="track" id="track"></div><pre class="proc" id="proc"></pre></div>
     <hr class="sep" />
     </section>
@@ -639,9 +657,6 @@
       <div class="yp-veil-top"></div>
       <div class="yp-veil-bot"></div>
       <div class="yp-hit" id="ypHit"></div>
-      <div class="yp-flash l" id="ypFlashL">-10</div>
-      <div class="yp-flash c" id="ypFlashC">Pause</div>
-      <div class="yp-flash r" id="ypFlashR">+10</div>
       <div class="yp-meter l" id="ypBrit"><i id="ypBritfill"></i></div>
       <div class="yp-meter r" id="ypVol"><i id="ypVolfill"></i></div>
       <div class="yp-curtain" id="ypCurtain"><button class="yp-play" id="ypStart" type="button" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div>
@@ -658,7 +673,6 @@
             <span class="yp-time" id="ypTime">0:00 / 0:00</span>
             <span class="yp-spacer"></span>
             <button class="yp-ico yp-rate" id="ypRate" type="button">1×</button>
-            <button class="yp-ico yp-skip" id="ypSkip" type="button">Skip</button>
             <button class="yp-ico" id="ypFull" type="button" aria-label="Fullscreen"></button>
           </div>
         </div>
@@ -711,8 +725,8 @@
       });
       numBox.textContent = "#" + products[index].n;
       menu.querySelectorAll("button").forEach((b, n) => b.classList.toggle("active", n === index));
-      if (window.innerWidth >= 980) { track.style.transform = "none"; return; }
       const card = track.children[index];
+      if (!card) return;
       const shift = (stage.clientWidth - card.offsetWidth) / 2 - card.offsetLeft;
       track.style.transition = animate === false ? "none" : "";
       track.style.transform = "translateX(" + shift + "px)";
@@ -757,6 +771,22 @@
     }, { passive: true });
     stage.addEventListener("touchend", (e) => {
       const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) < 40) return;
+      moved = true;
+      go(index + (dx < 0 ? 1 : -1));
+      setTimeout(() => { moved = false; }, 350);
+    });
+    let dragX = 0, dragging = false;
+    stage.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "touch") return;
+      dragX = e.clientX;
+      dragging = true;
+      moved = false;
+    });
+    stage.addEventListener("pointerup", (e) => {
+      if (!dragging || e.pointerType === "touch") return;
+      dragging = false;
+      const dx = e.clientX - dragX;
       if (Math.abs(dx) < 40) return;
       moved = true;
       go(index + (dx < 0 ? 1 : -1));
@@ -935,11 +965,48 @@
       clearTimeout(hideT);
       document.getElementById("ypChrome").classList.add("hide");
     }
-    function burst(id) {
-      var el = document.getElementById(id);
-      el.classList.add("on");
-      clearTimeout(el._t);
-      el._t = setTimeout(function () { el.classList.remove("on"); }, 420);
+    var adLock = false, adRound = 0, contentAt = 0, sawReal = false;
+    function videoIdNow() {
+      try {
+        var data = player.getVideoData ? player.getVideoData() : null;
+        if (data && data.video_id) return data.video_id;
+        var url = player.getVideoUrl ? player.getVideoUrl() : "";
+        var m = String(url).match(/[?&]v=([\w-]{11})/);
+        return m ? m[1] : "";
+      } catch (e) { return ""; }
+    }
+    function remember() {
+      if (!player || !player.getCurrentTime) return;
+      if (videoIdNow() === VIDEO) {
+        sawReal = true;
+        contentAt = player.getCurrentTime() || 0;
+        adRound = 0;
+      }
+    }
+    function adOn() {
+      if (!player || !player.getPlayerState) return false;
+      var st = player.getPlayerState();
+      if (st !== 1 && st !== 3) return false;
+      var id = videoIdNow();
+      if (id && id !== VIDEO) return true;
+      if (!id && sawReal) return true;
+      return false;
+    }
+    function kickAd() {
+      if (adLock || adRound >= 2 || !player || !player.loadVideoById) return;
+      adLock = true;
+      adRound += 1;
+      var t = contentAt || 0;
+      try { player.loadVideoById({ videoId: VIDEO, startSeconds: t }); } catch (e) {}
+      setTimeout(function () {
+        try { player.loadVideoById({ videoId: VIDEO, startSeconds: t }); forceHD(); } catch (e) {}
+        setTimeout(function () { adLock = false; }, 1100);
+      }, 90);
+    }
+    function watchAd() {
+      if (!player) return;
+      remember();
+      if (adOn()) kickAd();
     }
     function meter(id, fill, n) {
       document.getElementById(fill).style.height = n + "%";
@@ -976,6 +1043,7 @@
       if (st === 0 || (armed && d && t >= d - 0.25)) showEnd();
       else document.getElementById("ypEnd").classList.add("off");
       document.getElementById("ypCurtain").classList.toggle("off", st !== 2);
+      watchAd();
     }
     function boot() {
       player = new YT.Player("ypYt", {
@@ -998,6 +1066,7 @@
           },
           onStateChange: function (e) {
             forceHD();
+            watchAd();
             if (e.data === 1) {
               armed = false;
               document.getElementById("ypCurtain").classList.add("off");
@@ -1051,13 +1120,6 @@
       this.textContent = rates[rateAt] + "×";
       showChrome();
     };
-    document.getElementById("ypSkip").onclick = function () {
-      if (!player) return ensure();
-      var t = player.getCurrentTime ? player.getCurrentTime() : 0;
-      player.loadVideoById({ videoId: VIDEO, startSeconds: t });
-      setTimeout(function () { player.loadVideoById({ videoId: VIDEO, startSeconds: t }); forceHD(); }, 80);
-      showChrome();
-    };
     document.getElementById("ypFull").onclick = function () {
       var el = document.getElementById("ypShell");
       if (fsOn()) {
@@ -1079,10 +1141,10 @@
       var box = this.getBoundingClientRect();
       var z = zone(e.clientX - box.left, box.width);
       if (now - lastTap < 280 && player) {
-        if (z === "l") { player.seekTo(Math.max(0, player.getCurrentTime() - 10), true); burst("ypFlashL"); }
-        else if (z === "r") { player.seekTo(player.getCurrentTime() + 10, true); burst("ypFlashR"); }
+        if (z === "l") player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
+        else if (z === "r") player.seekTo(player.getCurrentTime() + 10, true);
         else {
-          if (player.getPlayerState() === 1) { player.pauseVideo(); burst("ypFlashC"); }
+          if (player.getPlayerState() === 1) player.pauseVideo();
           else { document.getElementById("ypCurtain").classList.add("off"); player.playVideo(); }
         }
         lastTap = 0;
@@ -1110,10 +1172,10 @@
       var now = Date.now();
       var z = zone(t.clientX - box.left, box.width);
       if (now - lastTap < 280 && player) {
-        if (z === "l") { player.seekTo(Math.max(0, player.getCurrentTime() - 10), true); burst("ypFlashL"); }
-        else if (z === "r") { player.seekTo(player.getCurrentTime() + 10, true); burst("ypFlashR"); }
+        if (z === "l") player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
+        else if (z === "r") player.seekTo(player.getCurrentTime() + 10, true);
         else {
-          if (player.getPlayerState() === 1) { player.pauseVideo(); burst("ypFlashC"); }
+          if (player.getPlayerState() === 1) player.pauseVideo();
           else { document.getElementById("ypCurtain").classList.add("off"); player.playVideo(); }
         }
         lastTap = 0;
