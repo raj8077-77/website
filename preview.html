@@ -1,1 +1,457 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#07060c" />
+  <title>D3M0N.IN</title>
+  <link rel="icon" href="https://ik.imagekit.io/silentgamers/Picsart_26-10-03_02-00-17-755.png?updatedAt=1790973036512&ik-s=cb860e00d6fdf3a8e6886e7b6a485ebc47ca2209" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#07060c; --card:#12101a; --line:rgba(168,85,247,.28); --gold:#e4c56a; --text:#f5f3ff; --muted:#a39bb8; }
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    button, a, img, .frame { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+    ::selection { background:rgba(124,58,237,.55); color:#fff; }
+    img { -webkit-user-drag:none; }
+    html, body { touch-action:manipulation; }
+    button, a, input { outline:none; -webkit-tap-highlight-color:transparent; }
+    body {
+      min-height:100dvh; font-family:"Outfit",system-ui,sans-serif; color:var(--text);
+      background:radial-gradient(900px 420px at 50% -10%, rgba(124,58,237,.28), transparent 60%), var(--bg);
+    }
+    a { color:inherit; text-decoration:none; }
+    button { font-family:inherit; }
+    header {
+      position: sticky; top: 0; z-index: 20;
+      display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; gap: 8px;
+      padding: calc(6px + env(safe-area-inset-top)) 12px 6px;
+      background: rgba(7, 6, 12, 0.78); backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .back, .brand-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; }
+    .back { border: 1px solid var(--line); background: rgba(124, 58, 237, 0.16); color: var(--gold); }
+    .back svg { width: 18px; height: 18px; }
+    .brand-icon { object-fit: contain; object-position: center; background: #000; margin-left: auto; }
+    .brand { text-align: center; font-family: system-ui, sans-serif; font-weight: 760; letter-spacing: 0.04em; font-size: 1.05rem; color: #fff; text-shadow: 0 1px 6px #000; }
+    .brand b { color: #c4b5fd; font-weight: 760; }
+    main { width:min(720px,100%); margin:0 auto; padding:18px 14px calc(92px + env(safe-area-inset-bottom)); }
+    .buybar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: rgba(7,6,12,.94); backdrop-filter: blur(16px); border-top: 1px solid rgba(228,197,106,.28); }
+    .buybar a.gareeb, .buybar button.gareeb { background: #c1121f; color: #fff; pointer-events: none; }
+    .shade { position: fixed; left: 0; right: 0; top: 0; bottom: 72px; z-index: 35; background: rgba(0,0,0,.55); opacity: 0; pointer-events: none; transition: opacity .3s; }
+    .shade.on { opacity: 1; }
+    .beggar { position: fixed; right: 0; bottom: 64px; z-index: 40; height: 64vh; width: auto; max-width: 78vw; object-fit: contain; object-position: right bottom; transform: translateY(110%); transition: transform .7s cubic-bezier(.22,.8,.28,1); pointer-events: none; }
+    .beggar.up { transform: translateY(0); }
+    body.scene a[href], body.scene .back { pointer-events: none; opacity: .4; }
+    .offer { display:grid; grid-template-columns:120px 1fr; gap:14px; align-items:center; margin:0 0 16px; padding:14px; border:1px solid rgba(228,197,106,.7); border-radius:20px; background:radial-gradient(120px 80px at 12% 20%, rgba(228,197,106,.2), transparent 70%), linear-gradient(135deg, rgba(124,58,237,.45), rgba(18,16,26,.94) 58%); }
+    .offer img { width:120px; height:120px; object-fit:contain; background:#000; border-radius:14px; }
+    .offer span { color:var(--gold); letter-spacing:.18em; font-size:.72rem; text-transform:uppercase; }
+    .offer b { display:block; margin-top:4px; font-size:1.25rem; }
+    .offer i { display:block; margin-top:6px; font-style:normal; color:var(--gold); font-weight:700; }
+    .offer s { color:#8d86a3; margin-right:6px; }
+    .offer em { display:block; margin-top:8px; color:#c4b5fd; font-style:normal; font-size:.82rem; }
+    .line { display: flex; gap: 6px; overflow: hidden; margin-top: 8px; }
+    .line img { width: 46px; height: 46px; flex: 0 0 46px; object-fit: contain; background: #000; border-radius: 8px; }
+    .shop { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.03); }
+    .shop img { width: 28px; height: 28px; border-radius: 6px; background: #fff; }
+    .shop span { display: block; color: var(--muted); font-size: .75rem; }
+    .shop b { font-size: .92rem; }
+    .shop > b { margin-left: auto; color: var(--gold); }
+    .buybar a, .buybar button { flex: 1; border: 0; border-radius: 14px; padding: 12px 10px; font: inherit; font-weight: 700; text-align: center; cursor: pointer; }
+    .buybar a { background: linear-gradient(180deg,#8b5cf6,#7c3aed); color: #fff; }
+    .buybar button { background: #1c1430; color: var(--gold); border: 1px solid rgba(228,197,106,.45); }
+    .buybar b { font-weight: 700; }
+    .kicker { color:var(--gold); letter-spacing:.16em; font-size:.78rem; font-weight:700; }
+    h1 { margin-top:6px; font-family:"Syne",sans-serif; font-size:1.7rem; letter-spacing:.04em; }
+    .desc { margin-top:8px; color:var(--muted); font-size:.98rem; line-height:1.55; }
+    .sheet { margin-top:16px; background:linear-gradient(180deg, rgba(124,58,237,.16), rgba(18,16,26,.92)); border:1px solid var(--line); border-radius:22px; padding:14px; }
+    .stage { overflow:hidden; border-radius:16px; background:#000; touch-action:pan-y; position:relative; cursor:grab; }
+    .track { display:flex; transition:transform .52s cubic-bezier(.22,.8,.28,1); will-change:transform; }
+    .frame { flex: 0 0 100%; width: 100%; min-width: 100%; border: 0; padding: 0; background: #000; position: relative; color: inherit; display: grid; place-items: center; overflow: hidden; aspect-ratio: 1 / 1.05; }
+    .frame img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; object-position: center; display: block; background: #000; }
+    .frame img.gif { image-rendering: auto; }
+    .frame .yp { width: 100%; max-width: 100%; margin: 0; border-radius: 0; aspect-ratio: 16/9; }
+    .play { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:58px; height:58px; border-radius:50%; display:grid; place-items:center; color:#fff; background:linear-gradient(180deg,#8b5cf6,#7c3aed); }
+    .play svg { width:22px; height:22px; fill:currentColor; }
+    .dots { display:flex; justify-content:center; gap:6px; margin-top:10px; }
+    .dots i { width:6px; height:6px; border-radius:99px; background:rgba(255,255,255,.22); }
+    .dots i.on { width:16px; background:var(--gold); }
+    .sep { margin:18px 0 14px; border:0; height:1px; background:linear-gradient(90deg, transparent, rgba(228,197,106,.55), transparent); }
+    h2 { font-size:.78rem; letter-spacing:.16em; text-transform:uppercase; }
+    ul { list-style:none; margin-top:10px; display:grid; gap:8px; }
+    li { display:flex; gap:10px; font-size:.95rem; }
+    li i { width:7px; height:7px; margin-top:6px; border-radius:50%; background:var(--gold); flex:0 0 auto; }
+    .repos { margin-top:10px; display:grid; gap:8px; }
+    .repo { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:14px; border:1px solid var(--line); background:rgba(255,255,255,.03); }
+    .repo svg { width:22px; height:22px; flex:0 0 auto; }
+    .repo b { display:block; font-size:.92rem; }
+    .repo span { display:block; color:var(--muted); font-size:.78rem; }
+    .yp { --p:#7c3aed; --p2:#c4b5fd; position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:14px; overflow:hidden; touch-action:manipulation; color:#fff; margin-top:12px; }
+    .yp:fullscreen, .yp:-webkit-full-screen, .yp.force-land { width:100%; height:100%; max-width:none; border-radius:0; aspect-ratio:auto; }
+    .yp.force-land { position:fixed; z-index:80; width:100vh; height:100vw; top:50%; left:50%; transform:translate(-50%,-50%) rotate(90deg); }
+    .yp-stage { position:absolute; inset:0; overflow:hidden; background:#000; }
+    .yp #ypYt, .yp #cpYt { position: absolute; left: 0; width: 100%; top: -46px; height: calc(100% + 92px); border: 0; pointer-events: none; overflow: hidden; }
+    .yp #ypYt iframe, .yp #cpYt iframe { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; pointer-events: none; transform: none; }
+    .yp-veil-top, .yp-veil-bot { position: absolute; left: 0; right: 0; z-index: 2; pointer-events: none; background: #000; display: block; }
+    .yp-veil-top { top: 0; height: 10px; }
+    .yp-veil-bot { bottom: 0; height: 12px; }
+    .yp-hit { position:absolute; inset:0; z-index:3; }
+    .yp-flash, .yp-meter { position:absolute; z-index:6; display:none; pointer-events:none; }
+    .yp-flash, .yp-flash.on { display: none !important; }
+    .yp-meter.on { display: grid; }
+    .media-col { min-width: 0; }
+    .yp-flash { top:44%; place-items:center; min-width:54px; height:28px; padding:0 10px; border-radius:999px; background:rgba(124,58,237,.92); font-size:13px; font-weight:720; }
+    .yp-flash.l { left:10px; } .yp-flash.c { left:50%; transform:translateX(-50%); } .yp-flash.r { right:10px; }
+    .yp-meter { top:50%; transform:translateY(-50%); width:28px; height:108px; border-radius:14px; background:rgba(0,0,0,.62); align-items:end; padding:6px; }
+    .yp-meter.r { right:10px; } .yp-meter.l { left:10px; }
+    .yp-meter i { display:block; width:100%; border-radius:99px; background:var(--p2); }
+    .yp-curtain, .yp-end { position:absolute; inset:0; z-index:4; display:grid; place-items:center; }
+    .yp-curtain { background:rgba(0,0,0,.45); } .yp-curtain.off, .yp-end.off { display:none; }
+    .yp-end { background:#000; padding:0; border:0; cursor:pointer; }
+    .yp-end img { width:100%; height:100%; object-fit:cover; display:block; }
+    .yp-play { width:58px; height:58px; border:0; border-radius:50%; color:#fff; cursor:pointer; background:linear-gradient(180deg,#8b5cf6,var(--p)); display:grid; place-items:center; }
+    .yp-play svg { width:22px; height:22px; fill:currentColor; } .yp-end .yp-play { position:absolute; }
+    .yp-chrome { position:absolute; inset:0; z-index:5; pointer-events:none; }
+    .yp-chrome.hide { opacity:0; } .yp-chrome button, .yp-chrome input { pointer-events:auto; }
+    .yp-logo { position:absolute; top:8px; left:10px; z-index:6; font-size:13px; font-weight:760; text-shadow:0 1px 6px #000; }
+    .yp-logo b { color:var(--p2); }
+    .yp-bar { position:absolute; left:0; right:0; bottom:0; padding:16px 8px 8px; background:linear-gradient(transparent, rgba(0,0,0,.92) 42%); }
+    .yp-seek { width:100%; height:16px; margin:0; accent-color:var(--p); }
+    .yp-row { display:flex; align-items:center; gap:6px; }
+    .yp-ico { width:34px; height:34px; padding:0; border:0; border-radius:50%; color:#fff; background:rgba(255,255,255,.1); display:grid; place-items:center; }
+    .yp-ico svg { width:16px; height:16px; fill:currentColor; }
+    .yp-time { font-size:11px; } .yp-spacer { flex:1; } .yp-rate { width:auto; padding:0 8px; border-radius:999px; font:inherit; font-size:12px; }
+    .credit { margin-top: 10px; color: var(--muted); font-size: .86rem; text-align: center; }
+    .channels { margin-top: 14px; display: grid; gap: 8px; }
+    .channels a { display: flex; flex-direction: column; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line); }
+    .channels span { color: var(--muted); font-size: .78rem; }
+    .credit b { color:var(--gold); }
+    .notice { margin:12px 22px 0; color:#6f6784; font-size:.72rem; line-height:1.4; text-align:center; }
+    .hold { display:none; position:fixed; inset:0; z-index:70; place-items:center; background:#07060c; color:var(--gold); letter-spacing:.08em; text-align:center; padding:24px; }
+    @media (min-width: 1024px) {
+      header { padding: 12px 36px; }
+      main { width: 100%; max-width: none; padding: 28px 40px 52px; }
+      #view {
+        display: grid;
+        grid-template-columns: minmax(480px, 1.15fr) minmax(380px, 0.85fr);
+        gap: 16px 40px;
+        align-items: start;
+      }
+      #view .kicker, #view h1, #view .offer { grid-column: 1 / -1; }
+      #view .media-col { position: sticky; top: 88px; }
+      #view .sheet { margin-top: 0; }
+      .channels { grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 1440px) {
+      header { padding: 14px 56px; }
+      main { padding: 36px 64px 64px; }
+      #view { grid-template-columns: minmax(560px, 1.2fr) minmax(420px, 0.8fr); gap: 18px 56px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="back" href="index.html" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18 9 12l6-6"/></svg></a>
+    <div class="brand">D3M0N<b>.IN</b></div>
+    <img class="brand-icon" alt="" src="https://ik.imagekit.io/silentgamers/Picsart_26-10-03_02-00-17-755.png?updatedAt=1790973036512&ik-s=cb860e00d6fdf3a8e6886e7b6a485ebc47ca2209" />
+  </header>
+  <main>
+    <div id="view"></div>
+    <p class="notice" id="notice"></p>
+  </main>
+  <audio id="garweb" preload="auto" src="garweb.mp3"></audio>
+  <div class="shade" id="shade"></div>
+  <img class="beggar" id="beggar" alt="" src="https://ik.imagekit.io/silentgamers/Picsart_26-10-05_22-40-39-084.png?updatedAt=1791220477763&ik-s=746bfbbce6ae986e28d84d20f412f4bfa9a96f44">
+  <footer class="buybar">
+    <a id="buyNow" href="buy.html">Buy now <b id="buyPrice"></b></a>
+    <button id="buyFree" type="button">Buy for free</button>
+  </footer>
+  <script src="vault.js"></script>
+  <script>
+    document.getElementById("notice").textContent = window.VAULT.disclaimer;
+    const GH = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.73.5.5 5.73.5 12.02c0 5.1 3.29 9.42 7.86 10.95.58.1.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.59.24 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.69.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A10.52 10.52 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>';
+    const entries = {};
+    window.VAULT.items.forEach(function (item) { entries[item.n] = item; });
+    const view = document.getElementById("view");
+    let player = null, hideT = null, lastTap = 0, armed = false, VIDEO = "", vol = 100, bright = 100, rateAt = 0;
+    const rates = [1, 1.25, 1.5, 2];
+    const playI = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+    const pauseI = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>';
+    const fullI = '<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7zm0-4h2V7h3V5H7zm10 9h-3v2h5v-5h-2zm0-9V5h-5v2h3v3z"/></svg>';
+    const exitI = '<svg viewBox="0 0 24 24"><path d="M5 16h3v3h2v-5H5zm3-8H5v2h5V5H8zm6 11h2v-3h3v-2h-5zm2-11V5h-2v5h5V8z"/></svg>';
+    function clock(n) { n = Math.max(0, Math.floor(n || 0)); return Math.floor(n / 60) + ":" + String(n % 60).padStart(2, "0"); }
+    function shell() { return document.getElementById("ypShell"); }
+    function fsOn() { var el = shell(); return !!el && (document.fullscreenElement === el || el.classList.contains("force-land")); }
+    function landOn(el) {
+      document.body.classList.add("fs-on");
+      if (window.innerHeight > window.innerWidth) el.classList.add("force-land");
+      if (screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(function () {});
+    }
+    function landOff(el) {
+      if (!el) return;
+      el.classList.remove("force-land");
+      document.body.classList.remove("fs-on");
+      if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+      if (screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(function () {});
+    }
+    function showChrome() {
+      var c = document.getElementById("ypChrome"); if (!c) return;
+      c.classList.remove("hide"); clearTimeout(hideT);
+      if (player && player.getPlayerState && player.getPlayerState() === 1) hideT = setTimeout(function () { c.classList.add("hide"); }, 2500);
+    }
+    function paint() {
+      if (!player || !player.getDuration || !document.getElementById("ypSeek")) return;
+      var d = player.getDuration() || 0, t = player.getCurrentTime() || 0, st = player.getPlayerState();
+      if (d && document.activeElement !== document.getElementById("ypSeek")) document.getElementById("ypSeek").value = Math.floor((t / d) * 1000);
+      document.getElementById("ypTime").textContent = clock(t) + " / " + clock(d);
+      document.getElementById("ypToggle").innerHTML = st === 1 ? pauseI : playI;
+      document.getElementById("ypFull").innerHTML = fsOn() ? exitI : fullI;
+      if (st === 0) document.getElementById("ypEnd").classList.remove("off");
+      watchAd();
+    }
+    function forceHD() {
+      if (!player || !player.setPlaybackQuality) return;
+      try { player.setPlaybackQuality("hd1080"); } catch (e) {}
+    }
+    function hideChrome() { clearTimeout(hideT); var c = document.getElementById("ypChrome"); if (c) c.classList.add("hide"); }
+    var adLock = false, adRound = 0, contentAt = 0, sawReal = false;
+    function videoIdNow() {
+      try {
+        var data = player.getVideoData ? player.getVideoData() : null;
+        if (data && data.video_id) return data.video_id;
+        var url = player.getVideoUrl ? player.getVideoUrl() : "";
+        var m = String(url).match(/[?&]v=([\w-]{11})/);
+        return m ? m[1] : "";
+      } catch (e) { return ""; }
+    }
+    function remember() {
+      if (!player || !player.getCurrentTime) return;
+      if (videoIdNow() === VIDEO) { sawReal = true; contentAt = player.getCurrentTime() || 0; adRound = 0; }
+    }
+    function adOn() {
+      if (!player || !player.getPlayerState) return false;
+      var st = player.getPlayerState();
+      if (st !== 1 && st !== 3) return false;
+      var id = videoIdNow();
+      if (id && id !== VIDEO) return true;
+      if (!id && sawReal) return true;
+      return false;
+    }
+    function kickAd() {
+      if (adLock || adRound >= 2 || !player || !player.loadVideoById) return;
+      adLock = true;
+      adRound += 1;
+      var t = contentAt || 0;
+      try { player.loadVideoById({ videoId: VIDEO, startSeconds: t }); } catch (e) {}
+      setTimeout(function () {
+        try { player.loadVideoById({ videoId: VIDEO, startSeconds: t }); forceHD(); } catch (e) {}
+        setTimeout(function () { adLock = false; }, 1100);
+      }, 90);
+    }
+    function watchAd() { if (!player) return; remember(); if (adOn()) kickAd(); }
+    function setVol(n) { vol = Math.max(0, Math.min(100, n)); if (player && player.setVolume) player.setVolume(vol); var f = document.getElementById("ypVolfill"); if (f) f.style.height = vol + "%"; }
+    function setBright(n) { bright = Math.max(30, Math.min(100, n)); var s = document.getElementById("ypShell"); if (s) s.style.filter = "brightness(" + bright + "%)"; var f = document.getElementById("ypBritfill"); if (f) f.style.height = bright + "%"; }
+    function showEnd() { var e = document.getElementById("ypEnd"); if (e) e.classList.remove("off"); }
+    function boot() {
+      player = new YT.Player("ypYt", {
+        videoId: VIDEO, host: "https://www.youtube-nocookie.com",
+        playerVars: { autoplay: 0, controls: 0, rel: 0, iv_load_policy: 3, playsinline: 1, modestbranding: 1, fs: 0, vq: "hd1080" },
+        events: { onReady: function () { try { player.setPlaybackQuality("hd1080"); } catch (e) {} }, onStateChange: paint }
+      });
+      setInterval(paint, 700);
+    }
+    function ensure() {
+      if (!VIDEO) return;
+      document.getElementById("ypCurtain").classList.add("off");
+      if (player && player.playVideo) { player.playVideo(); return; }
+      if (window.YT && YT.Player) boot();
+      else { window.onYouTubeIframeAPIReady = boot; var s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s); }
+    }
+    function openClip(id, frame) {
+      if (!id || frame.querySelector("#cpHit")) return;
+      frame.innerHTML = '<div class="yp" style="margin:0;border-radius:0"><div class="yp-stage"><div id="cpYt"></div></div><div class="yp-veil-top"></div><div class="yp-veil-bot"></div><div class="yp-hit" id="cpHit"></div><div class="yp-flash l" id="cpL">-10</div><div class="yp-flash c" id="cpC">Pause</div><div class="yp-flash r" id="cpR">+10</div><div class="yp-curtain" id="cpCurtain"><button class="yp-play" id="cpStart" type="button">' + playI + '</button></div><div class="yp-chrome" id="cpChrome"><div class="yp-logo">D3M0N<b>.IN</b></div><div class="yp-bar"><div class="yp-row"><button class="yp-ico" id="cpToggle" type="button">' + pauseI + '</button></div></div></div></div>';
+      var clip = null, last = 0;
+      function start() {
+        clip = new YT.Player("cpYt", { videoId: id, host: "https://www.youtube-nocookie.com", playerVars: { autoplay: 1, controls: 0, rel: 0, playsinline: 1, modestbranding: 1, vq: "hd1080" }, events: { onReady: function () { try { clip.setPlaybackQuality("hd1080"); } catch (e) {} clip.playVideo(); document.getElementById("cpCurtain").classList.add("off"); } } });
+      }
+      document.getElementById("cpStart").onclick = function (e) { e.stopPropagation(); if (window.YT && YT.Player) start(); };
+      document.getElementById("cpToggle").onclick = function (e) { e.stopPropagation(); if (!clip) return; if (clip.getPlayerState() === 1) clip.pauseVideo(); else clip.playVideo(); };
+      document.getElementById("cpHit").addEventListener("touchend", function (e) {
+        e.stopPropagation();
+        var t = e.changedTouches[0], box = this.getBoundingClientRect(), now = Date.now();
+        var z = t.clientX - box.left < box.width * 0.33 ? "l" : t.clientX - box.left > box.width * 0.67 ? "r" : "c";
+        if (now - last < 280 && clip) {
+          if (z === "l") clip.seekTo(Math.max(0, clip.getCurrentTime() - 10), true);
+          else if (z === "r") clip.seekTo(clip.getCurrentTime() + 10, true);
+          else { if (clip.getPlayerState() === 1) clip.pauseVideo(); else clip.playVideo(); }
+          last = 0; return;
+        }
+        last = now;
+        document.getElementById("cpChrome").classList.toggle("hide");
+      });
+      if (window.YT && YT.Player) start();
+      else { var prev = window.onYouTubeIframeAPIReady; window.onYouTubeIframeAPIReady = function () { if (prev) prev(); start(); }; var s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s); }
+    }
+    function render() {
+      var n = parseInt(String(location.hash || "#1").replace("#", ""), 10);
+      var item = entries[n];
+      if (!item) { view.innerHTML = '<p class="kicker">#' + n + '</p><h1>Empty</h1>'; return; }
+      item.media = item.media || []; item.parts = item.parts || []; item.repos = item.repos || [];
+      item.tutorial = item.tutorial || { id: "", thumb: "", credit: "" };
+      VIDEO = item.tutorial.id || "";
+      adLock = false; adRound = 0; contentAt = 0; sawReal = false;
+      document.title = item.name;
+      var price = item.price ? " · " + item.price : "";
+      document.getElementById("buyPrice").textContent = price;
+      document.getElementById("buyNow").href = "buy.html#" + n;
+      var frames = item.media.map(function (m) {
+        var gif = m.type === "gif" || /\.gif($|\?)/i.test(m.src || "");
+        var src = m.src || m.thumb || "";
+        var small = String(src).replace(/width=\d+/, "width=320");
+        return '<button class="frame" type="button"><img draggable="false" class="' + (gif ? "gif" : "") + '" alt="" src="' + small + '" data-full="' + src + '"></button>';
+      }).join("");
+      function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return {"&":"&","<":"<",">":">","\"":""","'":"&#39;"}[c]; }); }
+      function safe(u) { u = String(u || ""); return /^(https?:|mailto:)/i.test(u) ? u : "#"; }
+      var offer = window.VAULT.items.filter(function (it) { return it.n === window.VAULT.offer; })[0];
+      var offerHtml = offer ? '<a class="offer" href="preview.html#' + offer.n + '"><img alt="" src="' + String(offer.thumb || "").replace(/width=\d+/, "width=280") + '"><div><span>Latest offer</span><b>#' + offer.n + ' ' + esc(offer.name) + '</b><i><s>' + esc(offer.market || "") + '</s>' + esc(offer.price || "") + '</i><em>' + (offer.shops || []).map(function (s) { return esc(s.name) + " " + esc(s.price); }).join(" · ") + '</em></div></a>' : "";
+      var line = '<div class="line">' + item.media.map(function (m) { return '<img alt="" src="' + (m.src || m.thumb || "") + '">'; }).join("") + '</div>';
+      var shops = (item.shops || []).map(function (s) {
+        var host = "";
+        try { host = new URL(s.href).hostname; } catch (e) {}
+        return '<a class="shop" href="' + safe(s.href) + '" target="_blank" rel="noopener"><img alt="" src="https://www.google.com/s2/favicons?domain=' + host + '&sz=64"><span><b>' + esc(s.name) + '</b><span>Their price</span></span><b>' + esc(s.price) + '</b></a>';
+      }).join("");
+      view.innerHTML =
+        offerHtml +
+        '<p class="kicker">#' + n + '</p><h1>' + item.name + '</h1>' + line +
+        '<div class="media-col"><div class="stage" id="stage"><div class="track" id="track">' + frames + '</div></div><div class="dots" id="dots"></div></div>' +
+        '<section class="sheet"><h2>Value here</h2><p class="desc"><s>' + (item.market || "") + '</s> ' + (item.price || "") + ' on D3M0N.IN</p>' + shops +
+        '<hr class="sep"><h2>Components</h2><ul>' + item.parts.map(function (p) { return "<li><i></i><span>" + p + "</span></li>"; }).join("") + '</ul>' +
+        '<hr class="sep"><h2>GitHub</h2><div class="repos">' + item.repos.map(function (r) { return '<a class="repo" href="' + r.href + '" target="_blank" rel="noopener">' + GH + '<span><b>' + r.name + '</b><span>' + r.href.replace("https://", "") + '</span></span></a>'; }).join("") + '</div>' +
+        '<hr class="sep"><h2>Description</h2><p class="desc">' + esc(item.description || "") + '</p>' +
+        '<hr class="sep"><h2>Tutorial</h2><div class="yp" id="ypShell"><div class="yp-stage" id="ypStage"><div id="ypYt"></div></div><div class="yp-veil-top"></div><div class="yp-veil-bot"></div><div class="yp-hit" id="ypHit"></div><div class="yp-meter l" id="ypBrit"><i id="ypBritfill"></i></div><div class="yp-meter r" id="ypVol"><i id="ypVolfill"></i></div>' +
+        '<div class="yp-curtain" id="ypCurtain"><button class="yp-play" id="ypStart" type="button">' + playI + '</button></div>' +
+        '<button class="yp-end off" id="ypEnd" type="button"><img alt="" src="' + (item.tutorial.thumb || "") + '"><span class="yp-play">' + playI + '</span></button>' +
+        '<div class="yp-chrome" id="ypChrome"><div class="yp-logo">D3M0N<b>.IN</b></div><div class="yp-bar"><input class="yp-seek" id="ypSeek" type="range" min="0" max="1000" value="0"><div class="yp-row"><button class="yp-ico" id="ypToggle" type="button"></button><span class="yp-time" id="ypTime">0:00 / 0:00</span><span class="yp-spacer"></span><button class="yp-ico yp-rate" id="ypRate" type="button">1×</button><button class="yp-ico" id="ypFull" type="button"></button></div></div></div></div>' +
+        (item.tutorial.credit ? '<p class="credit">video credit = <b>' + item.tutorial.credit + '</b></p>' : '') +
+        '<div class="channels"><a href="' + (window.VAULT.igBroadcast || "#") + '" target="_blank" rel="noopener"><b>Broadcast channel</b><span>Instagram</span></a><a href="' + (window.VAULT.tgChannel || "#") + '" target="_blank" rel="noopener"><b>Telegram channel</b><span>Telegram</span></a></div></section>';
+      var stage = document.getElementById("stage"), track = document.getElementById("track"), dots = document.getElementById("dots"), at = 0, startX = 0;
+      function go(i) {
+        at = Math.max(0, Math.min(item.media.length - 1, i));
+        var w = stage.clientWidth;
+        Array.from(track.children).forEach(function (f) { f.style.flex = "0 0 " + w + "px"; f.style.width = w + "px"; f.style.minWidth = w + "px"; });
+        track.style.transform = "translateX(" + (-at * w) + "px)";
+        Array.from(dots.children).forEach(function (d, k) { d.className = k === at ? "on" : ""; });
+      }
+      item.media.forEach(function (_, i) { var dot = document.createElement("i"); if (i === 0) dot.className = "on"; dot.onclick = function () { go(i); }; dots.appendChild(dot); });
+      if (stage) {
+        stage.addEventListener("touchstart", function (e) { startX = e.changedTouches[0].clientX; track.style.transition = "none"; }, { passive: true });
+        stage.addEventListener("touchmove", function (e) { track.style.transform = "translateX(" + ((-at * stage.clientWidth) + (e.changedTouches[0].clientX - startX)) + "px)"; }, { passive: true });
+        stage.addEventListener("touchend", function (e) { track.style.transition = ""; var dx = e.changedTouches[0].clientX - startX; go(dx < -40 ? at + 1 : dx > 40 ? at - 1 : at); });
+        var dragX = 0, dragging = false;
+        stage.addEventListener("pointerdown", function (e) {
+          if (e.pointerType === "touch") return;
+          dragging = true; dragX = e.clientX; track.style.transition = "none";
+          stage.setPointerCapture(e.pointerId);
+        });
+        stage.addEventListener("pointermove", function (e) {
+          if (!dragging) return;
+          track.style.transform = "translateX(" + ((-at * stage.clientWidth) + (e.clientX - dragX)) + "px)";
+        });
+        function endDrag(e) {
+          if (!dragging || e.pointerType === "touch") return;
+          dragging = false; track.style.transition = "";
+          go(e.clientX - dragX < -28 ? at + 1 : e.clientX - dragX > 28 ? at - 1 : at);
+        }
+        stage.addEventListener("pointerup", endDrag);
+        stage.addEventListener("pointercancel", endDrag);
+        if (window._previewFit) window.removeEventListener("resize", window._previewFit);
+        window._previewFit = function () { if (document.getElementById("stage") === stage) go(at); };
+        window.addEventListener("resize", window._previewFit);
+        track.querySelectorAll("[data-vid]").forEach(function (btn) { btn.onclick = function () { openClip(btn.dataset.vid, btn); }; });
+        if (item.media.length) go(0);
+        stage.querySelectorAll("img[data-full]").forEach(function (img) {
+          var full = new Image();
+          full.onload = function () { img.src = img.getAttribute("data-full"); };
+          full.src = img.getAttribute("data-full");
+        });
+      }
+      document.getElementById("ypToggle").innerHTML = playI;
+      document.getElementById("ypFull").innerHTML = fullI;
+      document.getElementById("ypStart").onclick = function (e) { e.stopPropagation(); ensure(); };
+      document.getElementById("ypToggle").onclick = function () { if (!player) return ensure(); if (player.getPlayerState() === 1) player.pauseVideo(); else player.playVideo(); showChrome(); };
+      document.getElementById("ypFull").onclick = function () {
+        var el = shell();
+        if (fsOn()) { landOff(el); if (document.fullscreenElement) document.exitFullscreen(); }
+        else { var req = el.requestFullscreen || el.webkitRequestFullscreen; if (req) Promise.resolve(req.call(el)).then(function () { landOn(el); }).catch(function () { landOn(el); }); else landOn(el); }
+        paint();
+      };
+      document.getElementById("ypSeek").oninput = function () { if (player && player.getDuration()) player.seekTo((this.value / 1000) * player.getDuration(), true); };
+      document.getElementById("ypRate").onclick = function () { if (!player) return; rateAt = (rateAt + 1) % rates.length; player.setPlaybackRate(rates[rateAt]); this.textContent = rates[rateAt] + "×"; showChrome(); };
+      var fromTouch = 0;
+      function tapPlayer(x, w) {
+        var now = Date.now();
+        var z = x < w * 0.33 ? "l" : x > w * 0.67 ? "r" : "c";
+        if (now - lastTap < 280 && player) {
+          if (z === "l") player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
+          else if (z === "r") player.seekTo(player.getCurrentTime() + 10, true);
+          else { if (player.getPlayerState() === 1) player.pauseVideo(); else player.playVideo(); }
+          lastTap = 0; return;
+        }
+        lastTap = now;
+        document.getElementById("ypChrome").classList.contains("hide") ? showChrome() : hideChrome();
+      }
+      document.getElementById("ypHit").onclick = function (e) {
+        if (Date.now() - fromTouch < 700) return;
+        var box = this.getBoundingClientRect();
+        tapPlayer(e.clientX - box.left, box.width);
+      };
+      var drag = null;
+      document.getElementById("ypHit").addEventListener("touchstart", function (e) {
+        if (!fsOn()) return;
+        var t = e.changedTouches[0], box = this.getBoundingClientRect(), x = t.clientX - box.left;
+        if (x > box.width * 0.72) drag = { side: "v", y: t.clientY, vol: vol };
+        else if (x < box.width * 0.28) drag = { side: "b", y: t.clientY, bright: bright };
+      }, { passive: true });
+      document.getElementById("ypHit").addEventListener("touchmove", function (e) {
+        if (!drag) return;
+        var dy = drag.y - e.changedTouches[0].clientY;
+        if (drag.side === "v") setVol(drag.vol + dy * 0.5); else setBright(drag.bright + dy * 0.35);
+      }, { passive: true });
+      document.getElementById("ypHit").addEventListener("touchend", function (e) {
+        fromTouch = Date.now();
+        if (drag) { drag = null; return; }
+        var t = e.changedTouches[0], box = this.getBoundingClientRect();
+        tapPlayer(t.clientX - box.left, box.width);
+      });
+    }
+    document.addEventListener("fullscreenchange", function () { if (!document.fullscreenElement) landOff(shell()); paint(); });
+    document.addEventListener("gesturestart", function (e) { e.preventDefault(); });
+    document.addEventListener("wheel", function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+    if (screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(function () {});
+    document.getElementById("buyFree").onclick = function () {
+      if (player && player.pauseVideo) player.pauseVideo();
+      var free = document.getElementById("buyFree");
+      free.classList.add("gareeb");
+      free.textContent = "Gareeb";
+      document.body.classList.add("scene");
+      document.getElementById("shade").classList.add("on");
+      document.getElementById("beggar").classList.add("up");
+      var a = document.getElementById("garweb");
+      a.currentTime = 0;
+      var run = a.play();
+      if (run) run.catch(function () {});
+    };
+    document.getElementById("garweb").addEventListener("ended", function () {
+      document.getElementById("beggar").classList.remove("up");
+      document.getElementById("shade").classList.remove("on");
+      document.body.classList.remove("scene");
+      var free = document.getElementById("buyFree");
+      free.classList.remove("gareeb");
+      free.textContent = "Buy for free";
+    });
+    window.addEventListener("hashchange", function () { player = null; render(); });
+    if (!location.hash) history.replaceState(null, "", "#1");
+    if (!(window.YT && YT.Player)) { var ys = document.createElement("script"); ys.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(ys); }
+    render();
+  </script>
+</body>
+</html>
