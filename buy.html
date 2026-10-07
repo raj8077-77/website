@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#07060c" />
+  <title>Buy · D3M0N.IN</title>
+  <link rel="icon" href="https://ik.imagekit.io/silentgamers/Picsart_26-10-03_02-00-17-755.png?updatedAt=1790973036512&ik-s=cb860e00d6fdf3a8e6886e7b6a485ebc47ca2209" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#07060c; --line:rgba(168,85,247,.28); --gold:#e4c56a; --text:#f5f3ff; --muted:#a39bb8; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { min-height:100dvh; font-family:"Outfit",system-ui,sans-serif; color:var(--text); background:radial-gradient(900px 420px at 50% -10%, rgba(124,58,237,.28), transparent 60%), var(--bg); }
+    a { color:inherit; text-decoration:none; }
+    header { position:sticky; top:0; z-index:5; display:grid; grid-template-columns:40px 1fr 40px; align-items:center; padding:calc(6px + env(safe-area-inset-top)) 12px 6px; background:rgba(7,6,12,.78); backdrop-filter:blur(16px); border-bottom:1px solid rgba(255,255,255,.06); }
+    .back { width:36px; height:36px; border-radius:10px; display:grid; place-items:center; border:1px solid var(--line); color:var(--gold); }
+    .brand { text-align:center; font-weight:760; } .brand b { color:#c4b5fd; }
+    main { width:min(720px,100%); margin:0 auto; padding:18px 14px 110px; }
+    h1 { font-family:"Syne",sans-serif; font-size:1.6rem; margin-top:6px; }
+    .was { color:#8d86a3; text-decoration:line-through; margin-right:8px; }
+    .now { color:var(--gold); font-size:1.4rem; font-weight:700; }
+    .row { margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.03); }
+    .row span { color:var(--muted); font-size:.8rem; }
+    .row b { color:#fff; }
+    .buy { position:fixed; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); text-align:center; padding:14px; border-radius:14px; background:linear-gradient(180deg,#8b5cf6,#7c3aed); font-weight:700; }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="back" href="preview.html" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18 9 12l6-6"/></svg></a>
+    <div class="brand">D3M0N<b>.IN</b></div>
+    <span></span>
+  </header>
+  <main>
+    <p id="kicker" style="color:var(--gold);letter-spacing:.14em"></p>
+    <h1 id="name"></h1>
+    <p style="margin-top:10px"><span class="was" id="was"></span><span class="now" id="now"></span></p>
+    <div id="shops"></div>
+  </main>
+  <a class="buy" id="own" href="https://t.me/d3m0n_in">Buy now</a>
+  <script src="vault.js"></script>
+  <script>
+    var n = parseInt(String(location.hash || "#1").replace("#", ""), 10);
+    var item = window.VAULT.items.filter(function (it) { return it.n === n; })[0] || window.VAULT.items[0];
+    document.getElementById("kicker").textContent = "#" + item.n;
+    document.getElementById("name").textContent = item.name;
+    document.getElementById("was").textContent = item.market || "";
+    document.getElementById("now").textContent = item.price || "";
+    document.getElementById("shops").innerHTML = (item.shops || []).map(function (s) {
+      var host = "";
+      try { host = new URL(s.href).hostname; } catch (e) {}
+      return '<a class="row" href="' + s.href + '" target="_blank" rel="noopener"><span style="display:flex;align-items:center;gap:10px"><img alt="" width="28" height="28" src="https://www.google.com/s2/favicons?domain=' + host + '&sz=64"><span><b>' + s.name + '</b><span>Their price</span></span></span><b>' + s.price + '</b></a>';
+    }).join("");
+    document.getElementById("own").textContent = "Buy now · " + (item.price || "");
+    document.querySelector(".back").href = "preview.html#" + item.n;
+  </script>
+</body>
+</html>
